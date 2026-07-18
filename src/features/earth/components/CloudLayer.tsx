@@ -12,7 +12,6 @@ import { useFrame, useLoader } from '@react-three/fiber';
 import {
   TextureLoader,
   SphereGeometry,
-  AdditiveBlending,
   DoubleSide,
   ShaderMaterial,
 } from 'three';
@@ -47,16 +46,14 @@ const cloudFragmentShader = /* glsl */ `
   varying vec3 vWorldPosition;
 
   void main() {
-    vec2 driftUv = vUv + vec2(time * 0.0018, 0.0);
+    vec2 driftUv = vUv + vec2(time * 0.0012, 0.0);
     float coverage = texture2D(cloudTexture, driftUv).r;
-    float softCoverage = smoothstep(0.28, 0.82, coverage);
+    float softCoverage = smoothstep(0.35, 0.85, coverage);
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
-    float sunlight = smoothstep(-0.2, 0.55, dot(normalize(sunDirection), normalize(vWorldNormal)));
-    float rim = pow(1.0 - max(dot(viewDir, normalize(vWorldNormal)), 0.0), 2.2);
-    vec3 litCloud = mix(vec3(0.32, 0.38, 0.48), vec3(1.0, 0.97, 0.9), sunlight);
-    vec3 selfShadow = litCloud * mix(0.72, 1.0, coverage);
-    vec3 color = selfShadow + vec3(0.18, 0.35, 0.58) * rim * 0.35;
-    float alpha = softCoverage * mix(0.18, 0.44, sunlight) + rim * softCoverage * 0.08;
+    float sunlight = smoothstep(-0.15, 0.6, dot(normalize(sunDirection), normalize(vWorldNormal)));
+    vec3 litCloud = mix(vec3(0.7, 0.75, 0.85), vec3(0.95, 0.95, 1.0), sunlight);
+    vec3 color = litCloud * mix(0.75, 1.0, coverage);
+    float alpha = softCoverage * mix(0.12, 0.3, sunlight);
     gl_FragColor = vec4(color, alpha);
   }
 `;
@@ -116,7 +113,6 @@ export function CloudLayer() {
         transparent
         depthWrite={false}
         side={DoubleSide}
-        blending={AdditiveBlending}
       />
     </mesh>
   );

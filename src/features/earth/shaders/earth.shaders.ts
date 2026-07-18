@@ -7,146 +7,140 @@
 
 export const earthVertexShader = /* glsl */ `
   varying vec2 vUv;
-  varying vec3 vNormal;
   varying vec3 vWorldNormal;
-  varying vec3 vPosition;
   varying vec3 vWorldPosition;
 
   void main() {
     vUv = uv;
-    vNormal = normalize(normalMatrix * normal);
     vWorldNormal = normalize(mat3(modelMatrix) * normal);
     vec4 worldPosition = modelMatrix * vec4(position, 1.0);
     vWorldPosition = worldPosition.xyz;
-    vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
 export const earthFragmentShader = /* glsl */ `
+  //
+  // Earth Fragment Shader — Layer Architecture
+  //
+  // Each rendering feature is isolated. Features are additive:
+  // you can enable/disable any combination without breaking others.
+  //
+  // Layer order (bottom to top):
+  //   1. Albedo + Directional Light      (base)
+  //   2. Normal Map / Bump                (terrain relief)
+  //   3. Ocean Specular                   (sun glint on water)
+  //   4. Night City Lights                (emissive on dark side)
+  //   5. Atmosphere (separate shell)      (independent component)
+  //   6. Clouds (separate shell)          (independent component)
+  //
   precision highp float;
 
+  // --- Textures ---
   uniform sampler2D dayTexture;
   uniform sampler2D nightTexture;
   uniform sampler2D specularTexture;
-  uniform sampler2D bumpTexture;
   uniform sampler2D normalTexture;
-  uniform sampler2D roughnessTexture;
-  uniform sampler2D ambientOcclusionTexture;
-  uniform sampler2D cloudTexture;
 
+  // --- Lighting ---
   uniform vec3 sunDirection;
   uniform float ambientIntensity;
-  uniform float bumpStrength;
   uniform float specularStrength;
   uniform float nightIntensity;
   uniform float terminatorWidth;
-  uniform float goldenHourIntensity;
-  uniform float oceanFresnelPower;
   uniform float oceanSpecularPower;
-  uniform float iceReflectance;
   uniform float cityBloomStrength;
-  uniform float auroraStrength;
-  uniform float lightningStrength;
-  uniform float cloudShadowStrength;
-  uniform float time;
 
+  // --- Varyings ---
   varying vec2 vUv;
-  varying vec3 vNormal;
   varying vec3 vWorldNormal;
-  varying vec3 vPosition;
   varying vec3 vWorldPosition;
 
-  float saturate(float value) {
-    return clamp(value, 0.0, 1.0);
-  }
-
-  float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-  }
-
-  vec3 perturbNormal(vec3 normal, vec2 uv) {
-    float texelSize = 1.0 / 2048.0;
-    float heightL = texture2D(bumpTexture, uv - vec2(texelSize, 0.0)).r;
-    float heightR = texture2D(bumpTexture, uv + vec2(texelSize, 0.0)).r;
-    float heightD = texture2D(bumpTexture, uv - vec2(0.0, texelSize)).r;
-    float heightU = texture2D(bumpTexture, uv + vec2(0.0, texelSize)).r;
-    vec3 mapNormal = texture2D(normalTexture, uv).rgb * 2.0 - 1.0;
-
-    vec3 relief = vec3(
-      (heightL - heightR) * bumpStrength,
-      (heightD - heightU) * bumpStrength,
-      0.0
-    );
-
-    return normalize(normal + relief + mapNormal * 0.045);
+  float saturate2(float x) {
+    return clamp(x, 0.0, 1.0);
   }
 
   void main() {
-    vec4 dayColor = texture2D(dayTexture, vUv);
-    vec4 nightColor = texture2D(nightTexture, vUv);
-    float oceanMask = texture2D(specularTexture, vUv).r;
-    float roughness = 1.0 - texture2D(roughnessTexture, vUv).r * 0.82;
-    float ao = mix(0.76, 1.0, texture2D(ambientOcclusionTexture, vUv).r);
-    float cloudCoverage = texture2D(cloudTexture, vUv + vec2(time * 0.0012, 0.0)).r;
+    // =========================================================
+    // LAYER 1: Albedo + Directional Light
+    // =========================================================
+    // This is the foundation. Everything else is additive.
+    // If this layer looks wrong, nothing else will fix it.
 
-    vec3 normal = perturbNormal(vWorldNormal, vUv);
-    vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+    vec4 albedo = texture2D(dayTexture, vUv);
     vec3 lightDir = normalize(sunDirection);
+    vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+
+    // Perturb normal using normal map for terrain detail
+    vec3 mapNormal = texture2D(normalTexture, vUv).rgb * 2.0 - 1.0;
+    vec3 normal = normalize(vWorldNormal + mapNormal * 0.3);
+
+    // Lambertian diffuse lighting
     float dotNL = dot(normal, lightDir);
+    float diffuse = max(dotNL, 0.0);
+
+    // Ambient fill (very low — space is dark)
+    vec3 ambient = albedo.rgb * ambientIntensity;
+
+    // Day hemisphere
+    vec3 dayColor = albedo.rgb * diffuse + ambient;
+
+    // Night hemisphere (very dark — only city lights later)
+    vec3 nightColor = vec3(0.0, 0.0, 0.0);
+
+    // =========================================================
+    // LAYER 1b: Terminator
+    // =========================================================
+    // The terminator is the day/night boundary.
+    // We compute it once and share across all layers.
+    // Narrow = crisp transition like NASA photography.
+
     float dayFactor = smoothstep(-terminatorWidth, terminatorWidth, dotNL);
     float nightFactor = 1.0 - dayFactor;
 
-    float diffuse = max(dotNL, 0.0);
-    float polarIce = smoothstep(0.63, 0.9, abs(vWorldNormal.y)) * smoothstep(0.48, 0.9, dayColor.b);
-    vec3 terrain = mix(dayColor.rgb, vec3(0.88, 0.94, 1.0), polarIce * iceReflectance);
+    // =========================================================
+    // LAYER 2: Ocean Specular (sun glint on water)
+    // =========================================================
+    // Specular map (red channel) acts as ocean mask.
+    // Only water reflects sunlight toward the viewer.
 
-    float goldenFactor = smoothstep(-terminatorWidth * 0.45, terminatorWidth * 1.5, dotNL)
-                       - smoothstep(terminatorWidth * 0.55, terminatorWidth * 2.4, dotNL);
-    vec3 sunsetTint = vec3(1.0, 0.48, 0.19) * goldenFactor * goldenHourIntensity;
-
+    float oceanMask = texture2D(specularTexture, vUv).r;
     vec3 halfDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfDir), 0.0), oceanSpecularPower * max(roughness, 0.18));
-    float fresnel = pow(1.0 - saturate(dot(viewDir, normal)), oceanFresnelPower);
-    vec3 oceanReflection = vec3(0.46, 0.72, 1.0) * fresnel * oceanMask * 0.42;
-    vec3 oceanSpecular = vec3(1.0, 0.94, 0.78) * spec * oceanMask * specularStrength * dayFactor;
+    float spec = pow(max(dot(normal, halfDir), 0.0), oceanSpecularPower);
+    vec3 oceanSpecular = vec3(1.0, 0.97, 0.92) * spec * oceanMask * specularStrength * dayFactor;
 
-    float cloudShadow = smoothstep(0.45, 0.78, cloudCoverage) * dayFactor * cloudShadowStrength;
-    vec3 dayLit = terrain * (ambientIntensity + diffuse * (1.0 - cloudShadow)) * ao;
-    dayLit += sunsetTint * terrain;
-    dayLit += oceanReflection + oceanSpecular;
+    // =========================================================
+    // LAYER 3: Night City Lights
+    // =========================================================
+    // City lights from the night texture, visible on the dark side.
+    // Multiplied by nightFactor so they fade across the terminator.
 
-    float cityMask = max(max(nightColor.r, nightColor.g), nightColor.b);
-    vec3 cityLights = nightColor.rgb * nightIntensity * cityBloomStrength * smoothstep(0.12, 0.78, nightFactor);
-    float lightningNoise = step(0.9975, hash(vUv * vec2(320.0, 170.0) + floor(time * 1.8))) * smoothstep(0.35, 0.85, cloudCoverage);
-    vec3 lightning = vec3(0.55, 0.75, 1.0) * lightningNoise * lightningStrength * nightFactor;
-    float auroraBand = smoothstep(0.56, 0.78, abs(vWorldNormal.y)) * smoothstep(0.16, 0.72, nightFactor);
-    vec3 aurora = mix(vec3(0.0, 0.75, 0.46), vec3(0.38, 0.22, 0.9), hash(vUv * 12.0)) * auroraBand * auroraStrength;
-    vec3 moonFill = terrain * vec3(0.12, 0.16, 0.24) * nightFactor * (1.0 - cityMask);
+    vec4 nightTex = texture2D(nightTexture, vUv);
+    float cityMask = max(max(nightTex.r, nightTex.g), nightTex.b);
+    vec3 cityLights = nightTex.rgb * nightIntensity * cityBloomStrength
+                    * smoothstep(0.15, 0.7, nightFactor);
 
-    float twilightFactor = smoothstep(-terminatorWidth * 2.0, -terminatorWidth * 0.35, dotNL)
-                         - smoothstep(-terminatorWidth * 0.25, terminatorWidth * 0.9, dotNL);
-    vec3 twilight = vec3(0.11, 0.16, 0.34) * twilightFactor;
+    // =========================================================
+    // FINAL COMPOSITE
+    // =========================================================
+    // Day side: albedo * diffuse + ambient + ocean specular
+    // Night side: city lights
+    // Blend across terminator
 
-    vec3 finalColor = mix(cityLights + moonFill + aurora + lightning + twilight, dayLit, dayFactor);
-    finalColor += dayColor.rgb * ambientIntensity * 0.08;
+    vec3 finalColor = mix(cityLights, dayColor + oceanSpecular, dayFactor);
 
     gl_FragColor = vec4(finalColor, 1.0);
   }
 `;
 
 export const atmosphereVertexShader = /* glsl */ `
-  varying vec3 vNormal;
   varying vec3 vWorldNormal;
-  varying vec3 vPosition;
   varying vec3 vWorldPosition;
 
   void main() {
-    vNormal = normalize(normalMatrix * normal);
     vWorldNormal = normalize(mat3(modelMatrix) * normal);
     vec4 worldPosition = modelMatrix * vec4(position, 1.0);
     vWorldPosition = worldPosition.xyz;
-    vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
@@ -164,34 +158,46 @@ export const atmosphereFragmentShader = /* glsl */ `
   uniform float sunsetStrength;
   uniform vec3 sunDirection;
 
-  varying vec3 vNormal;
   varying vec3 vWorldNormal;
-  varying vec3 vPosition;
   varying vec3 vWorldPosition;
 
-  float saturate(float value) {
+  float saturate2(float value) {
     return clamp(value, 0.0, 1.0);
   }
 
   void main() {
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
     vec3 lightDir = normalize(sunDirection);
-    float viewDot = saturate(dot(viewDir, vWorldNormal));
-    float sunDot = dot(vWorldNormal, lightDir);
+
+    // Fresnel: atmosphere only visible near the limb (edge of Earth)
+    float viewDot = saturate2(dot(viewDir, vWorldNormal));
     float limb = pow(1.0 - viewDot, fresnelPower);
-    float horizon = pow(1.0 - abs(sunDot), 2.4) * horizonGlow;
 
+    // Sun-facing side gets slightly brighter atmosphere
+    float sunDot = dot(vWorldNormal, lightDir);
+    float daylight = smoothstep(-0.3, 0.2, sunDot);
+
+    // Rayleigh scattering - subtle blue at limb
     float rayleighPhase = 0.75 * (1.0 + pow(dot(viewDir, lightDir), 2.0));
-    float miePhase = pow(saturate(dot(viewDir, lightDir)), 8.0);
     vec3 rayleigh = atmosphereColor * rayleighPhase * rayleighStrength;
-    vec3 mie = vec3(1.0, 0.62, 0.28) * miePhase * mieStrength;
-    vec3 sunset = vec3(1.0, 0.36, 0.13) * horizon * sunsetStrength;
-    vec3 highAltitude = vec3(0.18, 0.42, 1.0) * pow(limb, 1.4);
 
-    float daylight = smoothstep(-0.32, 0.18, sunDot);
-    vec3 color = (rayleigh + mie + sunset + highAltitude) * atmosphereIntensity * mix(0.42, 1.0, daylight);
-    float alpha = limb * atmosphereOpacity * mix(0.45, 1.0, daylight) + horizon * 0.055;
+    // Mie scattering - warm glow near sun
+    float miePhase = pow(saturate2(dot(viewDir, lightDir)), 12.0);
+    vec3 mie = vec3(1.0, 0.7, 0.4) * miePhase * mieStrength;
 
-    gl_FragColor = vec4(color, saturate(alpha));
+    // Sunset glow at horizon
+    float horizon = pow(1.0 - abs(sunDot), 3.0) * horizonGlow;
+    vec3 sunset = vec3(1.0, 0.45, 0.2) * horizon * sunsetStrength;
+
+    // Combine scattering components
+    vec3 color = (rayleigh + mie + sunset) * atmosphereIntensity * mix(0.5, 1.0, daylight);
+
+    // Alpha: only visible at limb, never in center
+    float alpha = limb * atmosphereOpacity * mix(0.4, 1.0, daylight);
+
+    // Clamp alpha to avoid visible overlay on the planet center
+    alpha = saturate2(alpha);
+
+    gl_FragColor = vec4(color, alpha);
   }
 `;

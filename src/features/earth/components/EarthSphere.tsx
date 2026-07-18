@@ -1,12 +1,15 @@
 /**
  * EarthSphere Component
  *
- * The core 3D Earth mesh with custom GLSL shaders for:
- * - Day/night texture blending
- * - Soft terminator with golden hour
- * - City lights emission
- * - Specular ocean reflections
- * - Bump-mapped terrain
+ * Core 3D Earth mesh with custom GLSL shader.
+ *
+ * Layer architecture (bottom to top):
+ *   1. Albedo + Directional Light      (base)
+ *   2. Ocean Specular                   (sun glint on water)
+ *   3. Night City Lights                (emissive on dark side)
+ *
+ * Atmosphere, clouds, and post-processing are independent
+ * components outside this mesh.
  *
  * Rotation is driven by the IAU Earth Rotation Angle formula.
  */
@@ -22,7 +25,7 @@ import {
   SRGBColorSpace,
   LinearFilter,
   LinearMipmapLinearFilter,
-  RepeatWrapping,
+  ClampToEdgeWrapping,
 } from 'three';
 import type { Mesh } from 'three';
 import {
@@ -37,101 +40,51 @@ export function EarthSphere() {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<ShaderMaterial>(null);
 
-  // Load all Earth textures
-  const [
-    dayMap,
-    nightMap,
-    specularMap,
-    bumpMap,
-    normalMap,
-    roughnessMap,
-    ambientOcclusionMap,
-    cloudMap,
-  ] = useLoader(TextureLoader, [
+  // Load only the textures the shader actually uses
+  const [dayMap, nightMap, specularMap, normalMap] = useLoader(TextureLoader, [
     EARTH_TEXTURES.day,
     EARTH_TEXTURES.night,
     EARTH_TEXTURES.specular,
-    EARTH_TEXTURES.bump,
     EARTH_TEXTURES.normal,
-    EARTH_TEXTURES.roughness,
-    EARTH_TEXTURES.ambientOcclusion,
-    EARTH_TEXTURES.clouds,
   ]);
 
   // Configure texture color spaces and filtering
   useMemo(() => {
-    const colorTextures = [dayMap, nightMap];
-    const dataTextures = [
-      specularMap,
-      bumpMap,
-      normalMap,
-      roughnessMap,
-      ambientOcclusionMap,
-      cloudMap,
-    ];
-
-    colorTextures.forEach((texture) => {
+    [dayMap, nightMap].forEach((texture) => {
       texture.colorSpace = SRGBColorSpace;
       texture.minFilter = LinearMipmapLinearFilter;
       texture.magFilter = LinearFilter;
       texture.anisotropy = 16;
+      texture.wrapS = ClampToEdgeWrapping;
+      texture.wrapT = ClampToEdgeWrapping;
     });
 
-    dataTextures.forEach((texture) => {
+    [specularMap, normalMap].forEach((texture) => {
       texture.minFilter = LinearMipmapLinearFilter;
       texture.magFilter = LinearFilter;
-      texture.anisotropy = 16;
-      texture.wrapS = RepeatWrapping;
-      texture.wrapT = RepeatWrapping;
+      texture.anisotropy = 8;
+      texture.wrapS = ClampToEdgeWrapping;
+      texture.wrapT = ClampToEdgeWrapping;
     });
-  }, [
-    dayMap,
-    nightMap,
-    specularMap,
-    bumpMap,
-    normalMap,
-    roughnessMap,
-    ambientOcclusionMap,
-    cloudMap,
-  ]);
+  }, [dayMap, nightMap, specularMap, normalMap]);
 
-  // Create shader uniforms
+  // Create shader uniforms — exactly one per shader uniform
   const uniforms = useMemo(
     () => ({
       dayTexture: { value: dayMap },
       nightTexture: { value: nightMap },
       specularTexture: { value: specularMap },
-      bumpTexture: { value: bumpMap },
       normalTexture: { value: normalMap },
-      roughnessTexture: { value: roughnessMap },
-      ambientOcclusionTexture: { value: ambientOcclusionMap },
-      cloudTexture: { value: cloudMap },
       sunDirection: { value: [0, 0, 1] as [number, number, number] },
-      ambientIntensity: { value: 0.055 },
-      bumpStrength: { value: EARTH_PBR_CONFIG.reliefStrength },
+      ambientIntensity: { value: 0.03 },
       specularStrength: { value: EARTH_PBR_CONFIG.oceanSpecularStrength },
-      nightIntensity: { value: 1.65 },
-      terminatorWidth: { value: 0.13 },
-      goldenHourIntensity: { value: 0.34 },
-      oceanFresnelPower: { value: EARTH_PBR_CONFIG.oceanFresnelPower },
+      nightIntensity: { value: 1.0 },
+      terminatorWidth: { value: 0.06 },
+      goldenHourIntensity: { value: 0.0 },
       oceanSpecularPower: { value: EARTH_PBR_CONFIG.oceanSpecularPower },
-      iceReflectance: { value: EARTH_PBR_CONFIG.iceReflectance },
       cityBloomStrength: { value: EARTH_PBR_CONFIG.cityBloomStrength },
-      auroraStrength: { value: EARTH_PBR_CONFIG.auroraStrength },
-      lightningStrength: { value: EARTH_PBR_CONFIG.lightningStrength },
-      cloudShadowStrength: { value: EARTH_PBR_CONFIG.cloudShadowStrength },
-      time: { value: 0 },
     }),
-    [
-      dayMap,
-      nightMap,
-      specularMap,
-      bumpMap,
-      normalMap,
-      roughnessMap,
-      ambientOcclusionMap,
-      cloudMap,
-    ]
+    [dayMap, nightMap, specularMap, normalMap]
   );
 
   // Geometry (memoized)
@@ -158,7 +111,6 @@ export function EarthSphere() {
     if (materialRef.current) {
       const sunDir = astronomicalEngine.getSolarPosition(utcMs).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
-      materialRef.current.uniforms.time.value = state.clock.elapsedTime;
     }
   });
 

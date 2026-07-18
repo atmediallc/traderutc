@@ -14,8 +14,10 @@ export const EARTH_TEXTURES: EarthTexturePaths = {
   specular: '/textures/earth-specular-2k.jpg',
   bump: '/textures/earth-bump-2k.jpg',
   normal: '/textures/earth-normal-2k.jpg',
+  // NOTE: We only have 2K JPG textures. Roughness and AO are derived
+  // from available maps until proper PBR textures are provided.
   roughness: '/textures/earth-specular-2k.jpg',
-  ambientOcclusion: '/textures/earth-bump-2k.jpg',
+  ambientOcclusion: '/textures/earth-day-2k.jpg',
 };
 
 /** Starfield / Milky Way background texture */
@@ -23,16 +25,10 @@ export const STARFIELD_TEXTURE = '/textures/starfield-8k.jpg';
 
 /** Physically-based rendering controls for Earth material */
 export const EARTH_PBR_CONFIG = {
-  normalScale: 0.075,
-  reliefStrength: 0.018,
-  oceanFresnelPower: 5.0,
-  oceanSpecularPower: 96.0,
-  oceanSpecularStrength: 1.8,
-  iceReflectance: 0.32,
-  cityBloomStrength: 2.25,
-  auroraStrength: 0.22,
-  lightningStrength: 0.12,
-  cloudShadowStrength: 0.18,
+  normalScale: 0.3,
+  oceanSpecularPower: 48.0,
+  oceanSpecularStrength: 0.6,
+  cityBloomStrength: 1.2,
 } as const;
 
 /** Quality presets for different device capabilities */
@@ -109,49 +105,59 @@ export const CAMERA_CONFIG = {
 
 /**
  * Post-processing configuration
+ *
+ * Keep bloom subtle — only for realistic city light glow.
+ * No vignette or SSAO in space.
  */
 export const POST_PROCESSING_CONFIG = {
   bloom: {
-    luminanceThreshold: 0.72,
-    luminanceSmoothing: 0.22,
-    intensity: 0.82,
+    luminanceThreshold: 0.85,
+    luminanceSmoothing: 0.15,
+    intensity: 0.35,
     mipmapBlur: true,
   },
   vignette: {
-    offset: 0.38,
-    darkness: 0.46,
+    offset: 0.5,
+    darkness: 0.0,
   },
-  exposure: 1.08,
+  exposure: 1.0,
 } as const;
 
 /**
  * Atmosphere visual configuration
+ *
+ * Must remain subtle — atmosphere should only be visible near the limb.
+ * Never color the entire planet blue.
  */
 export const ATMOSPHERE_CONFIG = {
-  /** Atmosphere color (subtle blue) */
-  color: [0.28, 0.56, 1.0] as [number, number, number],
+  /** Atmosphere color (subtle blue, reduced saturation) */
+  color: [0.22, 0.48, 0.85] as [number, number, number],
   /** Fresnel power exponent (higher = thinner rim) */
-  fresnelPower: 2.65,
+  fresnelPower: 3.5,
   /** Overall atmosphere opacity */
-  opacity: 0.62,
+  opacity: 0.35,
   /** Atmosphere glow intensity */
-  intensity: 1.35,
-  rayleighStrength: 1.45,
-  mieStrength: 0.42,
-  horizonGlow: 1.15,
-  sunsetStrength: 0.82,
+  intensity: 0.55,
+  rayleighStrength: 0.6,
+  mieStrength: 0.18,
+  horizonGlow: 0.5,
+  sunsetStrength: 0.35,
 } as const;
 
 /**
  * Sun visual configuration
+ *
+ * Use physically plausible intensities.
+ * Real sunlight in space is intense but our tone mapping handles it.
+ * Ambient must be very low — space is dark.
  */
 export const SUN_CONFIG = {
   /** Directional light intensity */
-  intensity: 3.0,
+  intensity: 1.5,
   /** Light color (warm white / sunlight) */
-  color: '#fdfbd3',
+  color: '#fff4e6',
   /** Ambient light intensity (indirect illumination) */
-  ambientIntensity: 0.06,
+  ambientIntensity: 0.03,
   /** Ambient light color */
-  ambientColor: '#1a1a3e',
+  ambientColor: '#0a0e2a',
 } as const;
