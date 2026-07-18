@@ -35,6 +35,9 @@ importers:
       next:
         specifier: 16.2.10
         version: 16.2.10(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      postprocessing:
+        specifier: ^6.39.2
+        version: 6.39.2(three@0.185.1)
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -47,6 +50,9 @@ importers:
       three:
         specifier: ^0.185.1
         version: 0.185.1
+      three-stdlib:
+        specifier: ^2.36.1
+        version: 2.36.1(three@0.185.1)
       zustand:
         specifier: ^5.0.14
         version: 5.0.14(@types/react@19.2.17)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
