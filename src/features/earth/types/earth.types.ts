@@ -46,6 +46,8 @@ export interface EarthTexturePaths {
   specular: string;
   bump: string;
   normal: string;
+  roughness: string;
+  ambientOcclusion: string;
 }
 
 /** Sun uniform data passed to shaders */

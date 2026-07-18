@@ -14,10 +14,26 @@ export const EARTH_TEXTURES: EarthTexturePaths = {
   specular: '/textures/earth-specular-2k.jpg',
   bump: '/textures/earth-bump-2k.jpg',
   normal: '/textures/earth-normal-2k.jpg',
+  roughness: '/textures/earth-specular-2k.jpg',
+  ambientOcclusion: '/textures/earth-bump-2k.jpg',
 };
 
 /** Starfield / Milky Way background texture */
 export const STARFIELD_TEXTURE = '/textures/starfield-8k.jpg';
+
+/** Physically-based rendering controls for Earth material */
+export const EARTH_PBR_CONFIG = {
+  normalScale: 0.075,
+  reliefStrength: 0.018,
+  oceanFresnelPower: 5.0,
+  oceanSpecularPower: 96.0,
+  oceanSpecularStrength: 1.8,
+  iceReflectance: 0.32,
+  cityBloomStrength: 2.25,
+  auroraStrength: 0.22,
+  lightningStrength: 0.12,
+  cloudShadowStrength: 0.18,
+} as const;
 
 /** Quality presets for different device capabilities */
 export const QUALITY_PRESETS: Record<EarthQuality, EarthConfig> = {
@@ -96,15 +112,16 @@ export const CAMERA_CONFIG = {
  */
 export const POST_PROCESSING_CONFIG = {
   bloom: {
-    luminanceThreshold: 0.8,
-    luminanceSmoothing: 0.3,
-    intensity: 1.2,
+    luminanceThreshold: 0.72,
+    luminanceSmoothing: 0.22,
+    intensity: 0.82,
     mipmapBlur: true,
   },
   vignette: {
-    offset: 0.3,
-    darkness: 0.7,
+    offset: 0.38,
+    darkness: 0.46,
   },
+  exposure: 1.08,
 } as const;
 
 /**
@@ -112,13 +129,17 @@ export const POST_PROCESSING_CONFIG = {
  */
 export const ATMOSPHERE_CONFIG = {
   /** Atmosphere color (subtle blue) */
-  color: [0.3, 0.6, 1.0] as [number, number, number],
+  color: [0.28, 0.56, 1.0] as [number, number, number],
   /** Fresnel power exponent (higher = thinner rim) */
-  fresnelPower: 3.5,
+  fresnelPower: 2.65,
   /** Overall atmosphere opacity */
-  opacity: 0.7,
+  opacity: 0.62,
   /** Atmosphere glow intensity */
-  intensity: 1.5,
+  intensity: 1.35,
+  rayleighStrength: 1.45,
+  mieStrength: 0.42,
+  horizonGlow: 1.15,
+  sunsetStrength: 0.82,
 } as const;
 
 /**

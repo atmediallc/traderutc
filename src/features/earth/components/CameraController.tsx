@@ -10,7 +10,7 @@ import { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsType } from 'three-stdlib';
-import { Vector3, MathUtils } from 'three';
+import { Vector3 } from 'three';
 import { CAMERA_CONFIG } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
 
@@ -34,16 +34,17 @@ export function CameraController() {
   }, [cameraState.position, cameraState.isAnimating]);
 
   // Smooth camera animation
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (isAnimatingRef.current) {
       const currentPos = camera.position;
       const dist = currentPos.distanceTo(targetPos.current);
+      const ease = 1 - Math.exp(-delta * 2.8);
 
       if (dist < 0.01) {
         isAnimatingRef.current = false;
         setCameraAnimating(false);
       } else {
-        camera.position.lerp(targetPos.current, 0.04);
+        camera.position.lerp(targetPos.current, ease);
       }
     }
   });
@@ -58,8 +59,8 @@ export function CameraController() {
       maxDistance={CAMERA_CONFIG.maxDistance}
       autoRotate={autoRotate}
       autoRotateSpeed={CAMERA_CONFIG.autoRotateSpeed}
-      rotateSpeed={0.5}
-      zoomSpeed={0.8}
+      rotateSpeed={0.34}
+      zoomSpeed={0.58}
     />
   );
 }

@@ -13,6 +13,7 @@
 import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
+import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
 import { EarthSphere } from './EarthSphere';
 import { CloudLayer } from './CloudLayer';
 import { Atmosphere } from './Atmosphere';
@@ -48,9 +49,12 @@ export function EarthCanvas() {
         alpha: false,
         powerPreference: 'high-performance',
         stencil: false,
+        toneMapping: ACESFilmicToneMapping,
+        outputColorSpace: SRGBColorSpace,
       }}
       dpr={[1, 2]}
-      style={{
+      shadows="soft"
+      style={{ 
         position: 'absolute',
         top: 0,
         left: 0,

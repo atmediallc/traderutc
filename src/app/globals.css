@@ -8,19 +8,19 @@
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
   /* === Background Palette === */
-  --bg-void: hsl(220 25% 2%);              /* Deep space background */
-  --bg-primary: hsl(220 20% 4%);            /* Main app background */
-  --bg-secondary: hsl(220 18% 7%);          /* Panel backgrounds */
-  --bg-tertiary: hsl(220 16% 10%);          /* Card backgrounds */
-  --bg-elevated: hsl(220 16% 13%);          /* Elevated surfaces */
-  --bg-glass: hsla(220 20% 8% / 0.75);      /* Glassmorphism panels */
-  --bg-glass-dense: hsla(220 20% 6% / 0.88); /* Dense glass panels */
+  --bg-void: hsl(224 36% 2%);              /* Deep space background */
+  --bg-primary: hsl(224 28% 4%);            /* Main app background */
+  --bg-secondary: hsl(224 24% 6%);          /* Panel backgrounds */
+  --bg-tertiary: hsl(224 20% 9%);           /* Card backgrounds */
+  --bg-elevated: hsl(224 18% 12%);          /* Elevated surfaces */
+  --bg-glass: hsla(224 28% 6% / 0.68);      /* Glassmorphism panels */
+  --bg-glass-dense: hsla(224 30% 4% / 0.9); /* Dense glass panels */
 
   /* === Border & Divider === */
-  --border-subtle: hsla(220 20% 50% / 0.06);
-  --border-default: hsla(220 20% 50% / 0.1);
-  --border-prominent: hsla(220 20% 50% / 0.15);
-  --border-glow: hsla(210 100% 60% / 0.2);
+  --border-subtle: hsla(215 45% 72% / 0.075);
+  --border-default: hsla(215 45% 72% / 0.12);
+  --border-prominent: hsla(215 55% 76% / 0.18);
+  --border-glow: hsla(207 100% 62% / 0.24);
 
   /* === Market Status Colors === */
   --status-open: hsl(145 72% 52%);           /* Market OPEN — vibrant green */
@@ -83,11 +83,28 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--bg-void);
+  background:
+    radial-gradient(circle at 50% 42%, hsla(210 100% 16% / 0.28), transparent 42%),
+    radial-gradient(circle at 78% 18%, hsla(266 80% 18% / 0.16), transparent 36%),
+    var(--bg-void);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, hsla(210 100% 80% / 0.028) 1px, transparent 1px),
+    linear-gradient(0deg, hsla(210 100% 80% / 0.018) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
 }
 
 /* --- Scrollbar Styling (Webkit) --- */
@@ -120,15 +137,21 @@ body {
 
 /* --- Glassmorphism Utility Classes --- */
 .glass {
-  background: var(--bg-glass);
-  backdrop-filter: blur(20px) saturate(180%);
+  background:
+    linear-gradient(135deg, hsla(210 70% 76% / 0.08), transparent 34%),
+    var(--bg-glass);
+  backdrop-filter: blur(22px) saturate(170%);
   border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 1px 0 hsla(0 0% 100% / 0.055), var(--shadow-panel);
 }
 
 .glass-dense {
-  background: var(--bg-glass-dense);
-  backdrop-filter: blur(24px) saturate(200%);
+  background:
+    linear-gradient(135deg, hsla(210 70% 76% / 0.075), transparent 30%),
+    var(--bg-glass-dense);
+  backdrop-filter: blur(26px) saturate(190%);
   border: 1px solid var(--border-default);
+  box-shadow: inset 0 1px 0 hsla(0 0% 100% / 0.06), var(--shadow-panel);
 }
 
 /* --- Pulse Animation for Market Pins --- */

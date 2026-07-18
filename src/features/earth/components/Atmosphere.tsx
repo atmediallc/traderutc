@@ -46,14 +46,18 @@ export function Atmosphere() {
       fresnelPower: { value: ATMOSPHERE_CONFIG.fresnelPower },
       atmosphereOpacity: { value: ATMOSPHERE_CONFIG.opacity },
       atmosphereIntensity: { value: ATMOSPHERE_CONFIG.intensity },
+      rayleighStrength: { value: ATMOSPHERE_CONFIG.rayleighStrength },
+      mieStrength: { value: ATMOSPHERE_CONFIG.mieStrength },
+      horizonGlow: { value: ATMOSPHERE_CONFIG.horizonGlow },
+      sunsetStrength: { value: ATMOSPHERE_CONFIG.sunsetStrength },
       sunDirection: { value: [0, 0, 1] as [number, number, number] },
     }),
     []
   );
 
-  useFrame(() => {
+  useFrame((state) => {
     if (materialRef.current) {
-      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
+      const sunDir = astronomicalEngine.getSolarPosition(state.clock.oldTime).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
     }
   });

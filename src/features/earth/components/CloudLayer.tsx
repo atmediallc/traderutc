@@ -12,15 +12,54 @@ import { useFrame, useLoader } from '@react-three/fiber';
 import {
   TextureLoader,
   SphereGeometry,
-  MeshPhongMaterial,
   AdditiveBlending,
-  FrontSide,
   DoubleSide,
+  ShaderMaterial,
 } from 'three';
 import type { Mesh } from 'three';
 import { EARTH_TEXTURES, DEFAULT_EARTH_CONFIG } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
-import { earthEngine } from '@/engines';
+import { astronomicalEngine, earthEngine } from '@/engines';
+
+const cloudVertexShader = /* glsl */ `
+  varying vec2 vUv;
+  varying vec3 vWorldNormal;
+  varying vec3 vWorldPosition;
+
+  void main() {
+    vUv = uv;
+    vWorldNormal = normalize(mat3(modelMatrix) * normal);
+    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+    vWorldPosition = worldPosition.xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const cloudFragmentShader = /* glsl */ `
+  precision highp float;
+
+  uniform sampler2D cloudTexture;
+  uniform vec3 sunDirection;
+  uniform float time;
+
+  varying vec2 vUv;
+  varying vec3 vWorldNormal;
+  varying vec3 vWorldPosition;
+
+  void main() {
+    vec2 driftUv = vUv + vec2(time * 0.0018, 0.0);
+    float coverage = texture2D(cloudTexture, driftUv).r;
+    float softCoverage = smoothstep(0.28, 0.82, coverage);
+    vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+    float sunlight = smoothstep(-0.2, 0.55, dot(normalize(sunDirection), normalize(vWorldNormal)));
+    float rim = pow(1.0 - max(dot(viewDir, normalize(vWorldNormal)), 0.0), 2.2);
+    vec3 litCloud = mix(vec3(0.32, 0.38, 0.48), vec3(1.0, 0.97, 0.9), sunlight);
+    vec3 selfShadow = litCloud * mix(0.72, 1.0, coverage);
+    vec3 color = selfShadow + vec3(0.18, 0.35, 0.58) * rim * 0.35;
+    float alpha = softCoverage * mix(0.18, 0.44, sunlight) + rim * softCoverage * 0.08;
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
 
 export function CloudLayer() {
   const meshRef = useRef<Mesh>(null);
@@ -28,6 +67,17 @@ export function CloudLayer() {
   const cloudOffsetRef = useRef(0);
 
   const cloudMap = useLoader(TextureLoader, EARTH_TEXTURES.clouds);
+
+  const uniforms = useMemo(
+    () => ({
+      cloudTexture: { value: cloudMap },
+      sunDirection: { value: [0, 0, 1] as [number, number, number] },
+      time: { value: 0 },
+    }),
+    [cloudMap]
+  );
+
+  const materialRef = useRef<ShaderMaterial>(null);
 
   const geometry = useMemo(
     () =>
@@ -39,12 +89,18 @@ export function CloudLayer() {
     []
   );
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
+    const utcMs = state.clock.oldTime;
+
     if (meshRef.current) {
-      const utcMs = Date.now();
       // Base rotation matches Earth, plus a slow drift
       cloudOffsetRef.current += DEFAULT_EARTH_CONFIG.cloudRotationSpeed * delta * 60;
       meshRef.current.rotation.y = earthEngine.getRotationAngleY(utcMs) + cloudOffsetRef.current;
+    }
+
+    if (materialRef.current) {
+      materialRef.current.uniforms.sunDirection.value = astronomicalEngine.getSolarPosition(utcMs).direction;
+      materialRef.current.uniforms.time.value = state.clock.elapsedTime;
     }
   });
 
@@ -52,10 +108,12 @@ export function CloudLayer() {
 
   return (
     <mesh ref={meshRef} geometry={geometry}>
-      <meshPhongMaterial
-        map={cloudMap}
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={cloudVertexShader}
+        fragmentShader={cloudFragmentShader}
+        uniforms={uniforms}
         transparent
-        opacity={0.35}
         depthWrite={false}
         side={DoubleSide}
         blending={AdditiveBlending}

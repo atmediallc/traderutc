@@ -8,7 +8,8 @@
 
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Object3D, Color, InstancedMesh, MathUtils, Vector3 } from 'three';
+import { Object3D, Color, InstancedMesh, ShaderMaterial, Vector3 } from 'three';
+import type { ThreeEvent } from '@react-three/fiber';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { getStatusColor } from '../hooks/useMarketStatus';
@@ -19,49 +20,48 @@ import { earthEngine, marketIntelligenceEngine, MARKETS } from '@/engines';
 // Wait, we can keep importing DEFAULT_EARTH_CONFIG from '@/features/earth/constants/earth.constants'.
 import { DEFAULT_EARTH_CONFIG } from '@/features/earth/constants/earth.constants';
 
-// Custom shader for instanced glowing pins
-const pinVertexShader = `
+// Custom shader for instanced market entities: halo, core, and status pulse.
+const pinVertexShader = /* glsl */ `
   attribute vec3 color;
   varying vec3 vColor;
   varying vec2 vUv;
+  varying vec3 vWorldPosition;
   
   void main() {
     vColor = color;
     vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
+    vec4 worldPosition = modelMatrix * instanceMatrix * vec4(position, 1.0);
+    vWorldPosition = worldPosition.xyz;
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
   }
 `;
 
-const pinFragmentShader = `
+const pinFragmentShader = /* glsl */ `
+  precision highp float;
+
   varying vec3 vColor;
   varying vec2 vUv;
   uniform float time;
 
   void main() {
-    // Create a circular point
     vec2 center = vec2(0.5, 0.5);
     float dist = distance(vUv, center);
-    
-    if (dist > 0.5) discard; // Make it a circle
-    
-    // Soft edge glow
-    float glow = 1.0 - (dist * 2.0);
-    glow = pow(glow, 1.5);
-    
-    // Pulse animation based on time
-    float pulse = (sin(time * 3.0) * 0.2) + 0.8;
-    
-    // Core is brighter, edges fade out
-    vec3 finalColor = vColor * (glow + 0.5) * pulse;
-    
-    // Output color with high values for Bloom post-processing
-    gl_FragColor = vec4(finalColor * 2.5, glow);
+    if (dist > 0.5) discard;
+
+    float core = smoothstep(0.18, 0.02, dist);
+    float halo = smoothstep(0.5, 0.06, dist) * (1.0 - core * 0.18);
+    float ring = smoothstep(0.34, 0.31, dist) - smoothstep(0.42, 0.39, dist);
+    float pulse = 0.78 + sin(time * 2.6) * 0.14 + sin(time * 0.72) * 0.08;
+
+    vec3 finalColor = vColor * (core * 4.5 + halo * 1.45 * pulse + ring * 2.2);
+    float alpha = clamp(core + halo * 0.72 + ring * 0.8, 0.0, 1.0);
+    gl_FragColor = vec4(finalColor, alpha);
   }
 `;
 
 const dummy = new Object3D();
 const tempColor = new Color();
-const PIN_RADIUS = DEFAULT_EARTH_CONFIG.radius * 1.001; // Slightly above surface
+const PIN_RADIUS = DEFAULT_EARTH_CONFIG.radius * 1.012; // Slightly above cloud-shadowed surface
 
 export function MarketPins() {
   const meshRef = useRef<InstancedMesh>(null);
@@ -103,26 +103,24 @@ export function MarketPins() {
     if (!meshRef.current) return;
 
     timeRef.current += delta;
-    // Update shader time uniform
-    if (meshRef.current.material && 'uniforms' in meshRef.current.material) {
-      (meshRef.current.material as any).uniforms.time.value = timeRef.current;
+    const material = meshRef.current.material;
+    if (material instanceof ShaderMaterial) {
+      material.uniforms.time.value = timeRef.current;
     }
 
     // Only update colors occasionally to save performance (e.g., once per second)
     // For this example, updating every frame is fine since N=21 is tiny.
     MARKETS.forEach((market, i) => {
-      const isFiltered = !filteredMarkets.some(m => m.id === market.id);
+      const isFiltered = !filteredMarkets.some((item) => item.id === market.id);
       
       if (isFiltered) {
-        tempColor.setHex(0x111111); // Very dim if filtered out
+        tempColor.setHex(0x111827); // Very dim if filtered out
       } else {
         const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
         const isSelected = selectedMarketId === market.id;
-        
-        let colorStr = getStatusColor(status.status);
-        if (isSelected) colorStr = '#ffffff'; // White if selected
-        
+        const colorStr = isSelected ? '#4da3ff' : getStatusColor(status.status);
         tempColor.set(colorStr);
+        if (status.status === 'OPEN') tempColor.multiplyScalar(1.18);
       }
       
       tempColor.toArray(colorsArray, i * 3);
@@ -131,10 +129,10 @@ export function MarketPins() {
     meshRef.current.geometry.attributes.color.needsUpdate = true;
   });
 
-  const handleClick = (e: any) => {
-    e.stopPropagation();
-    if (e.instanceId !== undefined) {
-      const clickedMarket = MARKETS[e.instanceId];
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    if (event.instanceId !== undefined) {
+      const clickedMarket = MARKETS[event.instanceId];
       if (clickedMarket) {
         selectMarket(clickedMarket.id);
       }
@@ -147,7 +145,7 @@ export function MarketPins() {
       args={[undefined, undefined, MARKETS.length]}
       onClick={handleClick}
     >
-      <planeGeometry args={[0.04, 0.04]}>
+      <planeGeometry args={[0.075, 0.075]}>
         <instancedBufferAttribute
           attach="attributes-color"
           args={[colorsArray, 3]}
@@ -157,7 +155,7 @@ export function MarketPins() {
         vertexShader={pinVertexShader}
         fragmentShader={pinFragmentShader}
         uniforms={{ time: { value: 0 } }}
-        transparent={true}
+        transparent
         depthWrite={false}
       />
     </instancedMesh>
