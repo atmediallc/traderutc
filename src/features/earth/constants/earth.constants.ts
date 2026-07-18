@@ -25,10 +25,10 @@ export const STARFIELD_TEXTURE = '/textures/starfield-8k.jpg';
 
 /** Physically-based rendering controls for Earth material */
 export const EARTH_PBR_CONFIG = {
-  normalScale: 0.3,
-  oceanSpecularPower: 48.0,
-  oceanSpecularStrength: 0.6,
-  cityBloomStrength: 1.2,
+  normalScale: 0.6,
+  oceanSpecularPower: 64.0,
+  oceanSpecularStrength: 0.5,
+  cityBloomStrength: 1.4,
 } as const;
 
 /** Quality presets for different device capabilities */
@@ -66,7 +66,7 @@ export const QUALITY_PRESETS: Record<EarthQuality, EarthConfig> = {
   ultra: {
     radius: 1,
     widthSegments: 256,
-    heightSegments: 128,
+    heightSegments: 192,
     cloudScale: 1.006,
     atmosphereScale: 1.02,
     cloudRotationSpeed: 0.00003,
@@ -157,7 +157,7 @@ export const SUN_CONFIG = {
   /** Light color (warm white / sunlight) */
   color: '#fff4e6',
   /** Ambient light intensity (indirect illumination) */
-  ambientIntensity: 0.03,
+  ambientIntensity: 0.02,
   /** Ambient light color */
-  ambientColor: '#0a0e2a',
+  ambientColor: '#050812',
 } as const;

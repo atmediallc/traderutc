@@ -50,6 +50,7 @@ export const earthFragmentShader = /* glsl */ `
   uniform float terminatorWidth;
   uniform float oceanSpecularPower;
   uniform float cityBloomStrength;
+  uniform float normalScale;
 
   // --- Varyings ---
   varying vec2 vUv;
@@ -60,20 +61,30 @@ export const earthFragmentShader = /* glsl */ `
     return clamp(x, 0.0, 1.0);
   }
 
+  // Reconstruct orthogonal tangent frame from world normal.
+  // Avoids needing geometry-level tangent attributes.
+  mat3 constructTBN(vec3 n) {
+    vec3 up = abs(n.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 t = normalize(cross(n, up));
+    vec3 b = cross(n, t);
+    return mat3(t, b, n);
+  }
+
   void main() {
     // =========================================================
     // LAYER 1: Albedo + Directional Light
     // =========================================================
-    // This is the foundation. Everything else is additive.
-    // If this layer looks wrong, nothing else will fix it.
-
     vec4 albedo = texture2D(dayTexture, vUv);
     vec3 lightDir = normalize(sunDirection);
     vec3 viewDir = normalize(cameraPosition - vWorldPosition);
 
-    // Perturb normal using normal map for terrain detail
+    // Proper tangent-space normal mapping via reconstructed TBN
+    vec3 worldNormal = normalize(vWorldNormal);
     vec3 mapNormal = texture2D(normalTexture, vUv).rgb * 2.0 - 1.0;
-    vec3 normal = normalize(vWorldNormal + mapNormal * 0.3);
+    mapNormal.xy *= normalScale;
+    mapNormal.z = sqrt(max(0.0, 1.0 - dot(mapNormal.xy, mapNormal.xy)));
+    mat3 tbn = constructTBN(worldNormal);
+    vec3 normal = normalize(tbn * mapNormal);
 
     // Lambertian diffuse lighting
     float dotNL = dot(normal, lightDir);

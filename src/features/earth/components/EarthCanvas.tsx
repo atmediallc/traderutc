@@ -15,8 +15,6 @@ import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
 import { EarthSphere } from './EarthSphere';
-import { CloudLayer } from './CloudLayer';
-import { Atmosphere } from './Atmosphere';
 import { Sun } from './Sun';
 import { Starfield } from './Starfield';
 import { CameraController } from './CameraController';
@@ -75,8 +73,6 @@ export function EarthCanvas() {
 
         {/* Earth layers */}
         <EarthSphere />
-        <CloudLayer />
-        <Atmosphere />
         <MarketPins />
 
         {/* Camera */}

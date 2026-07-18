@@ -55,9 +55,9 @@ export function Atmosphere() {
     []
   );
 
-  useFrame((state) => {
+  useFrame(() => {
     if (materialRef.current) {
-      const sunDir = astronomicalEngine.getSolarPosition(state.clock.oldTime).direction;
+      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
     }
   });

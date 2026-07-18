@@ -87,7 +87,7 @@ export function CloudLayer() {
   );
 
   useFrame((state, delta) => {
-    const utcMs = state.clock.oldTime;
+    const utcMs = Date.now();
 
     if (meshRef.current) {
       // Base rotation matches Earth, plus a slow drift

@@ -76,13 +76,13 @@ export function EarthSphere() {
       specularTexture: { value: specularMap },
       normalTexture: { value: normalMap },
       sunDirection: { value: [0, 0, 1] as [number, number, number] },
-      ambientIntensity: { value: 0.03 },
+      ambientIntensity: { value: 0.02 },
       specularStrength: { value: EARTH_PBR_CONFIG.oceanSpecularStrength },
       nightIntensity: { value: 1.0 },
-      terminatorWidth: { value: 0.06 },
-      goldenHourIntensity: { value: 0.0 },
+      terminatorWidth: { value: 0.04 },
       oceanSpecularPower: { value: EARTH_PBR_CONFIG.oceanSpecularPower },
       cityBloomStrength: { value: EARTH_PBR_CONFIG.cityBloomStrength },
+      normalScale: { value: EARTH_PBR_CONFIG.normalScale },
     }),
     [dayMap, nightMap, specularMap, normalMap]
   );
@@ -98,9 +98,9 @@ export function EarthSphere() {
     []
   );
 
-  // Update rotation and sun direction every frame
-  useFrame((state) => {
-    const utcMs = state.clock.oldTime;
+  // Update rotation and sun direction every frame using real UTC time
+  useFrame(() => {
+    const utcMs = Date.now();
 
     // Astronomical rotation
     if (meshRef.current) {

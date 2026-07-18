@@ -15,9 +15,9 @@ import { SUN_CONFIG } from '../constants/earth.constants';
 export function Sun() {
   const lightRef = useRef<DirectionalLight>(null);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (lightRef.current) {
-      const sunDir = astronomicalEngine.getSolarPosition(state.clock.oldTime).direction;
+      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
       // Position light far away in the sun's direction
       lightRef.current.position.set(
         sunDir[0] * 10,
