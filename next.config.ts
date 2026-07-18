@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ['three'],
+  turbopack: {},
+  allowedDevOrigins: ['100.125.165.25'],
 };
 
 export default nextConfig;
