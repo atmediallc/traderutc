@@ -15,12 +15,12 @@ import {
   BackSide,
   AdditiveBlending,
 } from 'three';
-import { getSunDirectionVector } from '../services/sun-position.service';
 import {
   DEFAULT_EARTH_CONFIG,
   ATMOSPHERE_CONFIG,
 } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
+import { astronomicalEngine } from '@/engines';
 import {
   atmosphereVertexShader,
   atmosphereFragmentShader,
@@ -53,7 +53,7 @@ export function Atmosphere() {
 
   useFrame(() => {
     if (materialRef.current) {
-      const sunDir = getSunDirectionVector(Date.now());
+      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
     }
   });

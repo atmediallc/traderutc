@@ -13,7 +13,6 @@ import type { OrbitControls as OrbitControlsType } from 'three-stdlib';
 import { Vector3, MathUtils } from 'three';
 import { CAMERA_CONFIG } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
-import { geoToCartesian } from '../services/earth-rotation.service';
 
 export function CameraController() {
   const controlsRef = useRef<OrbitControlsType>(null);

@@ -8,11 +8,14 @@
  * - Performance monitoring
  */
 import { create } from 'zustand';
-import type { EarthQuality, CameraState } from '../types/earth.types';
+import type { CameraState } from '../types/earth.types';
 import {
   DEFAULT_QUALITY,
   CAMERA_CONFIG,
 } from '../constants/earth.constants';
+import { renderingEngine } from '@/engines';
+
+type EarthQuality = 'low' | 'medium' | 'high';
 
 interface EarthState {
   /** Current rendering quality level */
@@ -52,7 +55,7 @@ interface EarthActions {
 
 export const useEarthStore = create<EarthState & EarthActions>((set) => ({
   // State
-  quality: DEFAULT_QUALITY,
+  quality: DEFAULT_QUALITY as EarthQuality,
   autoRotate: false,
   isDragging: false,
   focusedCity: null,
@@ -103,3 +106,25 @@ export const useEarthStore = create<EarthState & EarthActions>((set) => ({
   toggleStars: () =>
     set((state) => ({ starsVisible: !state.starsVisible })),
 }));
+
+// Bind the RenderingEngine API triggers to the Zustand store
+renderingEngine.registerFocusCallback((cityId) => {
+  useEarthStore.getState().focusCity(cityId);
+});
+
+renderingEngine.registerQualityCallback((quality) => {
+  useEarthStore.getState().setQuality(quality as EarthQuality);
+});
+
+renderingEngine.registerBloomCallback((enabled) => {
+  const isPostProcessing = useEarthStore.getState().postProcessingEnabled;
+  if (isPostProcessing !== enabled) {
+    useEarthStore.getState().togglePostProcessing();
+  }
+});
+
+renderingEngine.registerCameraCallback((position, target) => {
+  useEarthStore.getState().setCameraPosition(position);
+  useEarthStore.getState().setCameraTarget(target);
+  useEarthStore.getState().setCameraAnimating(true);
+});

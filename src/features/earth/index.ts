@@ -10,6 +10,4 @@ export { Starfield } from './components/Starfield';
 export { CameraController } from './components/CameraController';
 export { PostProcessing } from './components/PostProcessing';
 export { useEarthStore } from './stores/earth.store';
-export { getEarthRotationY, geoToCartesian } from './services/earth-rotation.service';
-export { calculateSunPosition, getSunDirectionVector } from './services/sun-position.service';
 export type { EarthQuality, CameraState, EarthConfig } from './types/earth.types';

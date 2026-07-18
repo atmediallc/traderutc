@@ -9,7 +9,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { DirectionalLight } from 'three';
-import { getSunDirectionVector } from '../services/sun-position.service';
+import { astronomicalEngine } from '@/engines';
 import { SUN_CONFIG } from '../constants/earth.constants';
 
 export function Sun() {
@@ -17,7 +17,7 @@ export function Sun() {
 
   useFrame(() => {
     if (lightRef.current) {
-      const sunDir = getSunDirectionVector(Date.now());
+      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
       // Position light far away in the sun's direction
       lightRef.current.position.set(
         sunDir[0] * 10,

@@ -3,8 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
-import { computeMarketStatus } from '../services/market-status.service';
-import type { Market, ComputedMarketStatus } from '../types/market.types';
+import { marketIntelligenceEngine, Market, ComputedMarketStatus } from '@/engines';
 
 export function useMarketStatus(market: Market): ComputedMarketStatus {
   // We use the global UTC tick to trigger recalculations
@@ -13,7 +12,7 @@ export function useMarketStatus(market: Market): ComputedMarketStatus {
   // Compute status on every tick.
   // Note: For extreme performance, this could be memoized/throttled if needed,
   // but computeMarketStatus is quite fast.
-  return computeMarketStatus(market, utcMs);
+  return marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
 }
 
 /**

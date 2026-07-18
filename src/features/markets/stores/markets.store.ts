@@ -1,12 +1,5 @@
-/**
- * Markets Store
- *
- * Manages the state of market UI elements, filtering, and selected market data.
- */
 import { create } from 'zustand';
-import { MARKETS } from '../constants/market-data';
-import type { Market } from '../types/market.types';
-import { searchMarkets } from '../services/market-search.service';
+import { marketEngine, Market } from '@/engines';
 
 type AssetClass = 'All' | 'Stocks' | 'Futures' | 'Crypto' | 'Forex';
 
@@ -31,15 +24,14 @@ export const useMarketsStore = create<MarketsState & MarketsActions>((set, get) 
   selectedMarketId: null,
   searchQuery: '',
   activeFilter: 'All',
-  filteredMarkets: MARKETS,
+  filteredMarkets: marketEngine.getMarkets(),
 
   selectMarket: (marketId) => set({ selectedMarketId: marketId }),
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
     // Re-filter
-    const state = get();
-    const results = searchMarkets(query);
+    const results = marketEngine.searchMarkets(query);
     // TODO: Apply activeFilter logic here if we add asset classes to Market data
     set({ filteredMarkets: results });
   },
@@ -48,7 +40,7 @@ export const useMarketsStore = create<MarketsState & MarketsActions>((set, get) 
     set({ activeFilter: filter });
     // Re-filter
     const state = get();
-    const results = searchMarkets(state.searchQuery);
+    const results = marketEngine.searchMarkets(state.searchQuery);
     // TODO: Apply activeFilter logic here
     set({ filteredMarkets: results });
   },

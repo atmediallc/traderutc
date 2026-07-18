@@ -6,8 +6,8 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { UTCClock, TimeFormats } from '../types/utc.types';
-import { computeTimeFormats } from '../services/time-format.service';
+import type { UTCClock } from '../types/utc.types';
+import { timeEngine, TimeFormats } from '@/engines';
 
 interface UTCState {
   /** Current UTC in milliseconds (updated every second) */
@@ -36,7 +36,7 @@ export const useUTCStore = create<UTCState & UTCActions>()(
     (set) => ({
       // State
       utcMs: initialMs,
-      formats: computeTimeFormats(initialMs),
+      formats: timeEngine.computeTimeFormats(initialMs),
       selectedClocks: [
         {
           id: 'utc',
@@ -52,7 +52,7 @@ export const useUTCStore = create<UTCState & UTCActions>()(
         const now = Date.now();
         set({
           utcMs: now,
-          formats: computeTimeFormats(now),
+          formats: timeEngine.computeTimeFormats(now),
         });
       },
 

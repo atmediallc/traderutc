@@ -10,10 +10,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Filter, Globe2 } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
-import { MARKETS } from '../constants/market-data';
-import { computeMarketStatus } from '../services/market-status.service';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { getStatusColor } from '../hooks/useMarketStatus';
+import { marketIntelligenceEngine, MARKETS } from '@/engines';
 
 export function LeftSidebar() {
   const isOpen = useLayoutStore((s) => s.leftSidebarOpen);
@@ -51,7 +50,7 @@ export function LeftSidebar() {
           {/* Quick List */}
           <div className="flex-1 overflow-y-auto scrollbar-hide p-2 space-y-1">
             {MARKETS.map((market) => {
-              const status = computeMarketStatus(market, utcMs);
+              const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
               const statusColor = getStatusColor(status.status);
               const isSelected = selectedMarketId === market.id;
 

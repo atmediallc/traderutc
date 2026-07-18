@@ -10,9 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, MapPin, TrendingUp, Globe2, AlertCircle } from 'lucide-react';
 import { useMarketsStore } from '../stores/markets.store';
 import { useMarketStatus, getStatusColor } from '../hooks/useMarketStatus';
-import { MARKETS } from '../constants/market-data';
+import { MARKETS, Market } from '@/engines';
 import { cn } from '@/lib/utils';
-import type { Market } from '../types/market.types';
 
 export function MarketCard() {
   const selectedMarketId = useMarketsStore((s) => s.selectedMarketId);

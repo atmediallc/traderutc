@@ -24,10 +24,9 @@ import {
   LinearMipmapLinearFilter,
 } from 'three';
 import type { Mesh } from 'three';
-import { getEarthRotationY } from '../services/earth-rotation.service';
-import { getSunDirectionVector } from '../services/sun-position.service';
 import { EARTH_TEXTURES, DEFAULT_EARTH_CONFIG } from '../constants/earth.constants';
 import { earthVertexShader, earthFragmentShader } from '../shaders/earth.shaders';
+import { earthEngine, astronomicalEngine } from '@/engines';
 
 export function EarthSphere() {
   const meshRef = useRef<Mesh>(null);
@@ -91,12 +90,12 @@ export function EarthSphere() {
 
     // Astronomical rotation
     if (meshRef.current) {
-      meshRef.current.rotation.y = getEarthRotationY(utcMs);
+      meshRef.current.rotation.y = earthEngine.getRotationAngleY(utcMs);
     }
 
     // Sun direction for shader
     if (materialRef.current) {
-      const sunDir = getSunDirectionVector(utcMs);
+      const sunDir = astronomicalEngine.getSolarPosition(utcMs).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
     }
   });

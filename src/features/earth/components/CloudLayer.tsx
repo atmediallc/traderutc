@@ -20,7 +20,7 @@ import {
 import type { Mesh } from 'three';
 import { EARTH_TEXTURES, DEFAULT_EARTH_CONFIG } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
-import { getEarthRotationY } from '../services/earth-rotation.service';
+import { earthEngine } from '@/engines';
 
 export function CloudLayer() {
   const meshRef = useRef<Mesh>(null);
@@ -44,7 +44,7 @@ export function CloudLayer() {
       const utcMs = Date.now();
       // Base rotation matches Earth, plus a slow drift
       cloudOffsetRef.current += DEFAULT_EARTH_CONFIG.cloudRotationSpeed * delta * 60;
-      meshRef.current.rotation.y = getEarthRotationY(utcMs) + cloudOffsetRef.current;
+      meshRef.current.rotation.y = earthEngine.getRotationAngleY(utcMs) + cloudOffsetRef.current;
     }
   });
 

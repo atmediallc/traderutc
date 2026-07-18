@@ -9,7 +9,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Mesh } from 'three';
-import { getEarthRotationY } from '../services/earth-rotation.service';
+import { earthEngine } from '@/engines';
 
 /**
  * Applies real-time astronomical rotation to a Three.js mesh ref.
@@ -20,7 +20,7 @@ export function useEarthRotation(meshRef: React.RefObject<Mesh | null>): void {
   useFrame(() => {
     if (meshRef.current) {
       const utcMs = Date.now();
-      meshRef.current.rotation.y = getEarthRotationY(utcMs);
+      meshRef.current.rotation.y = earthEngine.getRotationAngleY(utcMs);
     }
   });
 }
@@ -30,10 +30,10 @@ export function useEarthRotation(meshRef: React.RefObject<Mesh | null>): void {
  * Useful for shader uniforms or other calculations.
  */
 export function useEarthRotationAngle(): React.RefObject<number> {
-  const angleRef = useRef(getEarthRotationY(Date.now()));
+  const angleRef = useRef(earthEngine.getRotationAngleY(Date.now()));
 
   useFrame(() => {
-    angleRef.current = getEarthRotationY(Date.now());
+    angleRef.current = earthEngine.getRotationAngleY(Date.now());
   });
 
   return angleRef;

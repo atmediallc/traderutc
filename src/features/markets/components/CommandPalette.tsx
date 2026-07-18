@@ -12,8 +12,8 @@ import { Search, X, MapPin } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
-import { computeMarketStatus } from '../services/market-status.service';
 import { getStatusColor } from '../hooks/useMarketStatus';
+import { marketIntelligenceEngine } from '@/engines';
 
 export function CommandPalette() {
   const isOpen = useLayoutStore((s) => s.searchOpen);
@@ -104,7 +104,7 @@ export function CommandPalette() {
               ) : (
                 <div className="px-2 space-y-1">
                   {filteredMarkets.slice(0, 10).map((market) => {
-                    const status = computeMarketStatus(market, utcMs);
+                    const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
                     const statusColor = getStatusColor(status.status);
                     
                     return (

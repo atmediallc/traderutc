@@ -9,13 +9,15 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Object3D, Color, InstancedMesh, MathUtils, Vector3 } from 'three';
-import { MARKETS } from '../constants/market-data';
-import { geoToCartesian } from '@/features/earth';
-import { DEFAULT_EARTH_CONFIG } from '@/features/earth/constants/earth.constants';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
-import { computeMarketStatus } from '../services/market-status.service';
 import { getStatusColor } from '../hooks/useMarketStatus';
+import { earthEngine, marketIntelligenceEngine, MARKETS } from '@/engines';
+
+// Temporary override because DEFAULT_EARTH_CONFIG is inside earth/constants/earth.constants.ts.
+// Let's import DEFAULT_EARTH_CONFIG directly from earth feature if it's not in engines.
+// Wait, we can keep importing DEFAULT_EARTH_CONFIG from '@/features/earth/constants/earth.constants'.
+import { DEFAULT_EARTH_CONFIG } from '@/features/earth/constants/earth.constants';
 
 // Custom shader for instanced glowing pins
 const pinVertexShader = `
@@ -82,7 +84,7 @@ export function MarketPins() {
 
     MARKETS.forEach((market, i) => {
       const [lat, lng] = market.coordinates;
-      const [x, y, z] = geoToCartesian(lat, lng, PIN_RADIUS);
+      const [x, y, z] = earthEngine.geoToCartesian(lat, lng, PIN_RADIUS);
       
       dummy.position.set(x, y, z);
       
@@ -114,7 +116,7 @@ export function MarketPins() {
       if (isFiltered) {
         tempColor.setHex(0x111111); // Very dim if filtered out
       } else {
-        const status = computeMarketStatus(market, utcMs);
+        const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
         const isSelected = selectedMarketId === market.id;
         
         let colorStr = getStatusColor(status.status);

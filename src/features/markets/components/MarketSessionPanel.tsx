@@ -11,10 +11,8 @@ import { X, Search } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
-import { computeMarketStatus } from '../services/market-status.service';
 import { getStatusColor } from '../hooks/useMarketStatus';
-import { MARKETS } from '../constants/market-data';
-import type { Market } from '../types/market.types';
+import { marketIntelligenceEngine, Market } from '@/engines';
 
 export function MarketSessionPanel() {
   const isOpen = useLayoutStore((s) => s.sessionPanelOpen);
@@ -92,7 +90,7 @@ export function MarketSessionPanel() {
 }
 
 function MarketRow({ market, utcMs, onClick }: { market: Market; utcMs: number; onClick: () => void }) {
-  const status = computeMarketStatus(market, utcMs);
+  const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
   const statusColor = getStatusColor(status.status);
 
   return (
