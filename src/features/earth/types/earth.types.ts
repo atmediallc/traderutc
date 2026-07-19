@@ -1,7 +1,8 @@
 /**
  * Earth Engine Type Definitions
+ *
+ * Refactored for ECharts Globe compatibility — Three.js types removed.
  */
-import type { Vector3Tuple } from 'three';
 
 /** Quality levels for texture resolution and rendering detail */
 export type EarthQuality = 'low' | 'medium' | 'high' | 'ultra';
@@ -26,14 +27,14 @@ export interface EarthConfig {
   autoRotateSpeed: number;
 }
 
-/** Camera state for smooth transitions */
+/** Camera state for smooth transitions (ECharts-compatible) */
 export interface CameraState {
-  /** Current camera position */
-  position: Vector3Tuple;
-  /** Current look-at target */
-  target: Vector3Tuple;
-  /** Current zoom / field of view */
-  fov: number;
+  /** Camera distance from Earth center */
+  distance: number;
+  /** View alpha angle (latitude tilt) */
+  alpha: number;
+  /** View beta angle (longitude rotation) */
+  beta: number;
   /** Whether camera is currently animating */
   isAnimating: boolean;
 }
@@ -53,39 +54,11 @@ export interface EarthTexturePaths {
 /** Sun uniform data passed to shaders */
 export interface SunUniforms {
   /** Normalized direction vector to the Sun */
-  direction: Vector3Tuple;
+  direction: [number, number, number];
   /** Sun intensity multiplier */
   intensity: number;
   /** Sun color (RGB, 0-1) */
-  color: Vector3Tuple;
-}
-
-/** Earth shader uniform values */
-export interface EarthShaderUniforms {
-  /** Day (Blue Marble) texture */
-  dayTexture: THREE.Texture | null;
-  /** Night (city lights) texture */
-  nightTexture: THREE.Texture | null;
-  /** Cloud alpha texture */
-  cloudTexture: THREE.Texture | null;
-  /** Specular map (ocean reflections) */
-  specularTexture: THREE.Texture | null;
-  /** Bump/height map */
-  bumpTexture: THREE.Texture | null;
-  /** Sun direction vector (normalized) */
-  sunDirection: Vector3Tuple;
-  /** Ambient light intensity */
-  ambientIntensity: number;
-  /** Bump map strength */
-  bumpStrength: number;
-  /** Specular highlight strength */
-  specularStrength: number;
-  /** Night lights emission intensity */
-  nightIntensity: number;
-  /** Terminator transition width (smoothstep range) */
-  terminatorWidth: number;
-  /** Golden hour tint intensity */
-  goldenHourIntensity: number;
+  color: [number, number, number];
 }
 
 /** Performance metrics for monitoring */
@@ -95,6 +68,3 @@ export interface EarthPerformanceMetrics {
   triangles: number;
   textureMemory: number;
 }
-
-// Import THREE namespace for texture type
-import type * as THREE from 'three';

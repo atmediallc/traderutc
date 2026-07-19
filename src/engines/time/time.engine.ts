@@ -59,7 +59,6 @@ export class TimeEngine implements ITimeEngine {
     const diffMs = targetMs - currentMs;
     if (diffMs <= 0) return '00:00:00';
 
-    const duration = DateTime.fromMillis(diffMs, { zone: 'utc' });
     const hours = Math.floor(diffMs / 3600000);
     const minutes = Math.floor((diffMs % 3600000) / 60000);
     const seconds = Math.floor((diffMs % 60000) / 1000);

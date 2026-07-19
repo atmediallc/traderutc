@@ -1,7 +1,6 @@
 /**
  * Hook to get real-time market status for a specific market
  */
-import { useState, useEffect } from 'react';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { marketIntelligenceEngine, Market, ComputedMarketStatus } from '@/engines';
 

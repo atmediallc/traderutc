@@ -225,7 +225,7 @@ export class MarketIntelligenceEngine implements IMarketIntelligenceEngine {
     const liquidity = this.getGlobalLiquidity(utcMs);
     const overlaps = this.getSessionOverlap(utcMs).filter((o) => o.active).length;
     
-    let heat = liquidity + overlaps * 25;
+    const heat = liquidity + overlaps * 25;
     return Math.min(100, Math.round(heat));
   }
 

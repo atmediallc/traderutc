@@ -16,10 +16,11 @@ export function HeaderTimeBar() {
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 border-b border-white/8"
+      className="fixed top-0 left-0 right-0 z-[100] border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
       style={{
-        background: 'hsla(220, 25%, 2%, 0.9)',
+        background: 'linear-gradient(180deg, rgba(20,25,35,0.85) 0%, rgba(10,12,18,0.95) 100%)',
         backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
       }}
     >
       <div className="flex items-center justify-between px-4 h-10 overflow-x-auto select-none">

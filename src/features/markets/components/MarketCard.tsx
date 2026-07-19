@@ -7,11 +7,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, MapPin, TrendingUp, Globe2, AlertCircle } from 'lucide-react';
+import { X, Clock, MapPin, Globe2 } from 'lucide-react';
 import { useMarketsStore } from '../stores/markets.store';
 import { useMarketStatus, getStatusColor } from '../hooks/useMarketStatus';
 import { MARKETS, Market } from '@/engines';
-import { cn } from '@/lib/utils';
 
 export function MarketCard() {
   const selectedMarketId = useMarketsStore((s) => s.selectedMarketId);
@@ -27,7 +26,12 @@ export function MarketCard() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="absolute right-6 top-16 z-40 w-80 max-w-[calc(100vw-3rem)] glass-dense rounded-xl overflow-hidden shadow-[0_8px_32px_hsla(0,0%,0%,0.6)]"
+          className="absolute right-6 top-16 z-40 w-80 max-w-[calc(100vw-3rem)] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] border border-white/10 font-sans"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15,20,30,0.85) 0%, rgba(5,7,12,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
         >
           <MarketCardContent 
             market={market} 
@@ -48,10 +52,10 @@ function MarketCardContent({ market, onClose }: { market: Market; onClose: () =>
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="relative p-4 pb-3 border-b border-white/[0.08]">
+      <div className="relative p-4 pb-3 border-b border-white/8">
         <button 
           onClick={onClose}
-          className="absolute right-3 top-3 p-1 rounded-md text-white/50 hover:bg-white/[0.1] hover:text-white transition-colors"
+          className="absolute right-3 top-3 p-1 rounded-md text-white/50 hover:bg-white/10 hover:text-white transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -74,7 +78,7 @@ function MarketCardContent({ market, onClose }: { market: Market; onClose: () =>
 
       {/* Status Banner */}
       <div 
-        className="px-4 py-2 flex items-center justify-between font-mono text-xs border-b border-white/[0.08]"
+        className="px-4 py-2 flex items-center justify-between font-mono text-xs border-b border-white/8"
         style={{ backgroundColor: `${statusColor}20` }}
       >
         <span style={{ color: statusColor }} className="font-semibold tracking-wider">
@@ -105,7 +109,7 @@ function MarketCardContent({ market, onClose }: { market: Market; onClose: () =>
         </div>
 
         {/* Schedule */}
-        <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+        <div className="space-y-2 pt-2 border-t border-white/6">
           <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Trading Hours (Local)</h3>
           
           <div className="grid gap-1.5 text-xs font-mono">
@@ -135,7 +139,7 @@ function MarketCardContent({ market, onClose }: { market: Market; onClose: () =>
         </div>
 
         {/* Financial Info */}
-        <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+        <div className="space-y-2 pt-2 border-t border-white/6">
           <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Market Data</h3>
           
           <div className="grid gap-2 text-xs font-mono">

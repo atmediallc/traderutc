@@ -64,10 +64,15 @@ export function RightPanel() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 300 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="absolute right-0 top-10 bottom-0 z-40 w-80 glass-dense border-l border-white/8 shadow-[-10px_0_30px_hsla(0,0%,0%,0.65)] flex flex-col font-mono"
+          className="absolute right-0 top-10 bottom-0 z-40 w-80 border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.8)] flex flex-col font-sans"
+          style={{
+            background: 'linear-gradient(225deg, rgba(15,20,30,0.8) 0%, rgba(5,7,12,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/8 bg-white/2 select-none">
+          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 select-none">
             <div className="flex items-center gap-2 text-white/95">
               <Clock className="w-4 h-4 text-emerald-400" />
               <h2 className="text-xs font-bold tracking-widest uppercase">

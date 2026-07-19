@@ -31,7 +31,12 @@ export function MarketSessionPanel() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.2 }}
-          className="absolute left-6 top-16 bottom-24 z-40 w-160 max-w-[calc(100vw-3rem)] glass-dense border border-white/10 rounded-lg overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.85)] flex flex-col"
+          className="absolute left-6 top-16 bottom-24 z-40 w-160 max-w-[calc(100vw-3rem)] border border-white/10 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col font-sans"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15,20,30,0.8) 0%, rgba(5,7,12,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/2">
@@ -70,8 +75,8 @@ export function MarketSessionPanel() {
             <div>Time Countdown / Event</div>
           </div>
 
-          {/* Table Body */}
           <div className="flex-1 overflow-y-auto scrollbar-hide bg-black/15">
+            {/* Search results */}
             {filteredMarkets.map((market) => (
               <MarketRow
                 key={market.id}
@@ -82,7 +87,7 @@ export function MarketSessionPanel() {
             ))}
             {filteredMarkets.length === 0 && (
               <div className="p-8 text-center text-xs text-white/30">
-                No matching telemetry channels for "{searchQuery}"
+                No matching telemetry channels for &quot;{searchQuery}&quot;
               </div>
             )}
           </div>
@@ -106,7 +111,7 @@ function MarketRow({ market, utcMs, onClick }: { market: Market; utcMs: number; 
           {market.city.toUpperCase()}
         </span>
         <span className="text-[9px] text-white/30 uppercase truncate">
-          {market.exchanges.join(', ')} // {market.country}
+          {market.exchanges.join(', ')}{' // '}{market.country}
         </span>
       </div>
 

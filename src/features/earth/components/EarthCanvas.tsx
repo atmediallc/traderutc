@@ -1,89 +1,84 @@
 /**
  * EarthCanvas Component
  *
- * The top-level React Three Fiber Canvas that renders the complete
- * 3D Earth scene. This component must be dynamically imported with
- * ssr: false because Three.js requires browser APIs.
+ * ECharts Globe-based Earth visualization. Replaces the previous
+ * Three.js / React Three Fiber implementation with a high-quality
+ * ECharts-GL globe renderer.
  *
- * Composes: EarthSphere, CloudLayer, Atmosphere, Sun, Starfield,
- * CameraController, and PostProcessing.
+ * Must be dynamically imported with ssr: false because ECharts
+ * requires browser APIs.
  */
 'use client';
 
-import { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Preload } from '@react-three/drei';
-import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
-import { EarthSphere } from './EarthSphere';
-import { Sun } from './Sun';
-import { Starfield } from './Starfield';
-import { CameraController } from './CameraController';
-import { PostProcessing } from './PostProcessing';
-import { CAMERA_CONFIG } from '../constants/earth.constants';
+import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import { useEarthStore } from '../stores/earth.store';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
+import type { CountryCollection, GlobeCountryInfo } from './Globe/globe.types';
 
-import { MarketPins } from '@/features/markets/components/MarketPins';
-
-/** Loading fallback while textures load */
-function EarthLoader() {
-  return (
-    <mesh>
-      <sphereGeometry args={[1, 32, 32]} />
-      <meshBasicMaterial color="#0a1628" wireframe />
-    </mesh>
-  );
-}
+// Dynamic import with SSR disabled (ECharts requires browser APIs)
+const Globe = dynamic(
+  () => import('./Globe/Globe'),
+  { ssr: false }
+);
 
 export function EarthCanvas() {
+  const [countriesData, setCountriesData] = useState<CountryCollection>();
+
+  const setSelectedCountry = useEarthStore((s) => s.setSelectedCountry);
+  const setHoveredCountry = useEarthStore((s) => s.setHoveredCountry);
+  const autoRotate = useEarthStore((s) => s.autoRotate);
+  const addClock = useUTCStore((s) => s.addClock);
+
+  // Load countries GeoJSON data
+  useEffect(() => {
+    fetch('/data/countries.json')
+      .then((res) => res.json())
+      .then((data) => setCountriesData(data))
+      .catch((err) =>
+        console.error('Failed to load countries.json:', err)
+      );
+  }, []);
+
+  const handleCountryClick = useCallback(
+    (info: GlobeCountryInfo) => {
+      setSelectedCountry(info);
+
+      // Add a UTC clock for the selected country's timezone
+      addClock({
+        id: info.isoCode,
+        label: `${info.flag} ${info.name}`,
+        ianaZone: info.timezoneId,
+        offset: info.utcOffset,
+        isDst: info.isDst,
+      });
+    },
+    [setSelectedCountry, addClock]
+  );
+
+  const handleCountryHover = useCallback(
+    (info: GlobeCountryInfo | null) => {
+      setHoveredCountry(info);
+    },
+    [setHoveredCountry]
+  );
+
   return (
-    <Canvas
-      camera={{
-        position: CAMERA_CONFIG.defaultPosition,
-        fov: CAMERA_CONFIG.defaultFov,
-        near: 0.01,
-        far: 200,
+    <Globe
+      countries={countriesData}
+      autoRotate={autoRotate}
+      onCountryClick={handleCountryClick}
+      onCountryHover={handleCountryHover}
+      onReady={() => {
+        // Globe chart is ready
       }}
-      gl={{
-        antialias: true,
-        alpha: false,
-        powerPreference: 'high-performance',
-        stencil: false,
-        toneMapping: ACESFilmicToneMapping,
-        outputColorSpace: SRGBColorSpace,
-      }}
-      dpr={[1, 2]}
-      shadows="soft"
-      style={{ 
+      style={{
         position: 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
-        background: '#000308',
       }}
-    >
-      {/* Background color */}
-      <color attach="background" args={['#000308']} />
-
-      <Suspense fallback={<EarthLoader />}>
-        {/* Stars behind everything */}
-        <Starfield />
-
-        {/* Lighting */}
-        <Sun />
-
-        {/* Earth layers */}
-        <EarthSphere />
-        <MarketPins />
-
-        {/* Camera */}
-        <CameraController />
-
-        {/* Post-processing effects */}
-        <PostProcessing />
-
-        {/* Preload all assets */}
-        <Preload all />
-      </Suspense>
-    </Canvas>
+    />
   );
 }

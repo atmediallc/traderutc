@@ -10,7 +10,7 @@
 import dynamic from 'next/dynamic';
 import { AppShell } from '@/features/layout/components/AppShell';
 
-// Dynamic import with SSR disabled (Three.js requires browser APIs)
+// Dynamic import with SSR disabled (ECharts requires browser APIs)
 const EarthCanvas = dynamic(
   () =>
     import('@/features/earth/components/EarthCanvas').then(
@@ -23,7 +23,7 @@ const EarthCanvas = dynamic(
         <div className="flex flex-col items-center gap-4">
           {/* Animated loading spinner */}
           <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-2 border-white/[0.06]" />
+            <div className="absolute inset-0 rounded-full border-2 border-white/6" />
             <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-emerald-400/60 animate-spin" />
             <div className="absolute inset-2 rounded-full border border-transparent border-t-emerald-400/30 animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
           </div>

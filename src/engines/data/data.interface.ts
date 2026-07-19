@@ -1,3 +1,3 @@
 export interface IDataEngine {
-  fetchMarketData(): Promise<any>;
+  fetchMarketData(): Promise<Record<string, string>>;
 }

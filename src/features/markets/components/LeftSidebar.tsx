@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Filter, Globe2, Compass } from 'lucide-react';
+import { X, Globe2, Compass } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
@@ -44,10 +44,15 @@ export function LeftSidebar() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -300 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="absolute left-0 top-10 bottom-0 z-40 w-80 glass-dense border-r border-white/8 shadow-[10px_0_30px_hsla(0,0%,0%,0.65)] flex flex-col font-mono"
+          className="absolute left-0 top-10 bottom-0 z-40 w-80 border-r border-white/10 shadow-[10px_0_30px_rgba(0,0,0,0.8)] flex flex-col font-sans"
+          style={{
+            background: 'linear-gradient(135deg, rgba(15,20,30,0.8) 0%, rgba(5,7,12,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/8 bg-white/2 select-none">
+          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 select-none">
             <div className="flex items-center gap-2 text-white/95">
               <Globe2 className="w-4 h-4 text-emerald-400" />
               <h2 className="text-xs font-bold tracking-widest uppercase">
@@ -83,6 +88,7 @@ export function LeftSidebar() {
           <div className="flex-1 overflow-y-auto scrollbar-hide p-2 space-y-1">
             {filteredMarketsByRegion.map((market) => {
               const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
+              // Session progress bar
               const statusColor = getStatusColor(status.status);
               const isSelected = selectedMarketId === market.id;
               const region = getMarketRegion(market);
@@ -108,7 +114,7 @@ export function LeftSidebar() {
                         {market.city.toUpperCase()}
                       </span>
                       <span className="text-[8px] text-white/30 tracking-widest uppercase">
-                        {market.exchanges[0]} // {region}
+                        {market.exchanges[0]}{' // '}{region}
                       </span>
                     </div>
 

@@ -8,7 +8,7 @@
 
 import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, MapPin } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
@@ -74,10 +74,10 @@ export function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-2xl glass-dense rounded-xl overflow-hidden shadow-[0_16px_64px_hsla(0,0%,0%,0.8)] border border-white/[0.15]"
+            className="relative w-full max-w-2xl glass-dense rounded-xl overflow-hidden shadow-[0_16px_64px_hsla(0,0%,0%,0.8)] border border-white/15"
           >
             {/* Input Area */}
-            <div className="flex items-center px-4 py-4 border-b border-white/[0.08]">
+            <div className="flex items-center px-4 py-4 border-b border-white/8">
               <Search className="w-5 h-5 text-white/50 mr-3" />
               <input
                 ref={inputRef}
@@ -89,7 +89,7 @@ export function CommandPalette() {
               />
               <button 
                 onClick={toggle}
-                className="p-1.5 rounded-md text-white/40 hover:bg-white/[0.1] hover:text-white transition-colors"
+                className="p-1.5 rounded-md text-white/40 hover:bg-white/10 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -99,7 +99,7 @@ export function CommandPalette() {
             <div className="max-h-[60vh] overflow-y-auto scrollbar-hide py-2">
               {filteredMarkets.length === 0 ? (
                 <div className="px-6 py-12 text-center text-white/40 font-mono">
-                  No results found for "{searchQuery}"
+                  No results found for &quot;{searchQuery}&quot;
                 </div>
               ) : (
                 <div className="px-2 space-y-1">
@@ -111,7 +111,7 @@ export function CommandPalette() {
                       <button
                         key={market.id}
                         onClick={() => handleSelect(market.id)}
-                        className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white/[0.06] transition-colors text-left group"
+                        className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white/6 transition-colors text-left group"
                       >
                         <div className="flex items-center gap-4">
                           <div 
@@ -149,16 +149,16 @@ export function CommandPalette() {
             </div>
             
             {/* Footer */}
-            <div className="px-4 py-2 border-t border-white/[0.08] bg-white/[0.02] flex items-center justify-between text-[10px] font-mono text-white/30 uppercase">
+            <div className="px-4 py-2 border-t border-white/8 bg-white/2 flex items-center justify-between text-[10px] font-mono text-white/30 uppercase">
               <div className="flex items-center gap-1">
                 <span>Navigate:</span>
-                <kbd className="px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.1]">↑↓</kbd>
+                <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10">↑↓</kbd>
                 <span>Select:</span>
-                <kbd className="px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.1]">Enter</kbd>
+                <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10">Enter</kbd>
               </div>
               <div className="flex items-center gap-1">
                 <span>Close:</span>
-                <kbd className="px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.1]">ESC</kbd>
+                <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10">ESC</kbd>
               </div>
             </div>
           </motion.div>
