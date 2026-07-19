@@ -110,25 +110,25 @@ export const DEFAULT_GLOBE_THEME: GlobeTheme = {
   atmosphereInnerGlow: 3,
 
   ambientIntensity: 0.4,
-  mainLightIntensity: 1.6,
+  mainLightIntensity: 1.3,
   mainLightAlpha: 35,
   mainLightBeta: 160,
   mainLightShadow: false,
 
   shading: 'realistic',
 
-  countryBorderColor: 'rgba(100, 180, 255, 0.6)',
-  countryBorderWidth: 0.5,
-  countryAreaColor: 'rgba(20, 50, 90, 0.65)',
-  countryHoverColor: 'rgba(60, 140, 220, 0.75)',
+  countryBorderColor: 'rgba(80, 180, 255, 0.5)',
+  countryBorderWidth: 0.6,
+  countryAreaColor: 'rgba(255, 255, 255, 0.03)',
+  countryHoverColor: 'rgba(60, 160, 240, 0.3)',
   countryLabelColor: '#e0f0ff',
 
   cloudsEnabled: true,
-  cloudsOpacity: 0.6,
+  cloudsOpacity: 0.25,
 
   heightScale: 0.6,
 
-  roughness: 0.7,
+  roughness: 0.92,
   metalness: 0.0,
 };
 

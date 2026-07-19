@@ -89,7 +89,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Floating Control Bar (bottom-center) */}
       <div
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),_inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-300 hover:border-white/15"
+        className="fixed bottom-19 left-1/2 -translate-x-1/2 z-100 flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-300 hover:border-white/15"
         style={{
           background: 'linear-gradient(180deg, rgba(20,25,35,0.75) 0%, rgba(10,12,18,0.90) 100%)',
           backdropFilter: 'blur(24px)',

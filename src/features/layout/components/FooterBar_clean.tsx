@@ -85,10 +85,7 @@ function Metric({ label, value, mono = true, className }: { label: string; value
   return (
     <span className={cn('flex items-center gap-1.5', className)}>
       <span className="text-[9px] font-medium text-white/35 tracking-widest uppercase">{label}</span>
-      <span
-        suppressHydrationWarning
-        className={cn('text-[11px] font-semibold text-white/85', mono && 'font-mono tracking-tight')}
-      >
+      <span className={cn('text-[11px] font-semibold text-white/85', mono && 'font-mono tracking-tight')}>
         {value}
       </span>
     </span>

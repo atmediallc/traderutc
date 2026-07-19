@@ -166,8 +166,7 @@ export function wireGlobeInteractions(
   // Return a cleanup function (guards against already-disposed chart)
   return () => {
     try {
-      const internal = chart as unknown as EChartsInternal;
-      if (!internal._disposed) {
+      if (!chart.isDisposed()) {
         chart.off('click', handleClick);
         chart.off('mouseover', handleMouseover);
         chart.off('mouseout', handleMouseout);

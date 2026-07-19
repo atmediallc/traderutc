@@ -30,8 +30,8 @@ import type {
   CountryCollection,
   GlobeCountryInfo,
   GlobeTheme,
-  EChartsInternal,
 } from './globe.types';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
 
 export interface GlobeHandle {
   /** The underlying ECharts instance */
@@ -70,8 +70,7 @@ export interface GlobeProps {
 /** Checks if an ECharts instance has been disposed */
 function isChartDisposed(chart: ECharts): boolean {
   try {
-    // ECharts v6 uses private _disposed flag
-    return (chart as unknown as EChartsInternal)._disposed === true;
+    return chart.isDisposed();
   } catch {
     return true;
   }
@@ -98,6 +97,7 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
   const chartRef = useRef<ECharts | null>(null);
   const disposedRef = useRef(false);
   const [isReady, setIsReady] = useState(false);
+  const [isManuallyOverridden, setIsManuallyOverridden] = useState(false);
 
   // Expose imperative API
   useImperativeHandle(
@@ -140,6 +140,11 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
       onChartReady: (c) => {
         onReady?.(c);
         setIsReady(true);
+
+        // Listen to drag/mousedown to set manual override
+        c.getZr().on('mousedown', () => {
+          setIsManuallyOverridden(true);
+        });
       },
     });
 
@@ -153,6 +158,79 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled]);
+
+  // Rotate globe to user's timezone on load with smooth easing
+  useEffect(() => {
+    if (!isReady || !chartRef.current || isManuallyOverridden) return;
+
+    const offsetMinutes = new Date().getTimezoneOffset();
+    const localLongitude = (-offsetMinutes / 60) * 15;
+
+    try {
+      const chart = chartRef.current;
+      // Start slightly offset to trigger the transition without setOption
+      const chartAny = chart as unknown as { _model?: { globe?: { viewControl?: { beta: number } } } };
+      const ecModel = chartAny._model;
+      if (ecModel?.globe?.viewControl) {
+        ecModel.globe.viewControl.beta = localLongitude - 60;
+        const zr = typeof chart.getZr === 'function' ? chart.getZr() : null;
+        zr?.refresh();
+      }
+
+      // Animate smoothly to the local meridian
+      const timer = setTimeout(() => {
+        if (chart && !chart.isDisposed()) {
+          rotateGlobeTo(chart, 25, localLongitude);
+        }
+      }, 300);
+
+      return () => clearTimeout(timer);
+    } catch {
+      // ignore
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReady]);
+
+  // Keep day/night light beta aligned with UTC time
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart || !isReady) return;
+
+    let lastMs = 0;
+    const unsubscribe = useUTCStore.subscribe(
+      (state) => {
+        const utcMs = state.utcMs;
+        if (utcMs === lastMs) return;
+        lastMs = utcMs;
+
+        if (chart.isDisposed()) return;
+        const now = new Date(utcMs);
+        const utcHours = now.getUTCHours();
+        const utcMinutes = now.getUTCMinutes();
+        const utcSeconds = now.getUTCSeconds();
+        const utcMilliseconds = now.getUTCMilliseconds();
+        const timeInHours = utcHours + utcMinutes / 60 + utcSeconds / 3600 + utcMilliseconds / 3600000;
+        let sunLongitude = (12 - timeInHours) * 15;
+        while (sunLongitude > 180) sunLongitude -= 360;
+        while (sunLongitude < -180) sunLongitude += 360;
+
+        try {
+          const chartAny = chart as unknown as { _model?: { globe?: { light?: { main?: { beta: number } } } } };
+          const ecModel = chartAny._model;
+          const globeComponent = ecModel?.globe;
+          if (globeComponent?.light?.main) {
+            globeComponent.light.main.beta = sunLongitude;
+            const zr = typeof chart.getZr === 'function' ? chart.getZr() : null;
+            zr?.refresh();
+          }
+        } catch {
+          // ignore
+        }
+      }
+    );
+
+    return unsubscribe;
+  }, [isReady]);
 
   // When countries data arrives, register the map and update the chart option
   useEffect(() => {
@@ -175,7 +253,7 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
 
       const updatedOption = buildGlobeOption({
         theme,
-        autoRotate: liveAutoRotate,
+        autoRotate: liveAutoRotate && !isManuallyOverridden,
         countries,
       });
       chart.setOption(updatedOption, { replaceMerge: ['series'] });
@@ -202,9 +280,9 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
   useEffect(() => {
     const chart = chartRef.current;
     if (chart && !disposedRef.current && !isChartDisposed(chart)) {
-      setGlobeAutoRotate(chart, autoRotate);
+      setGlobeAutoRotate(chart, autoRotate && !isManuallyOverridden);
     }
-  }, [autoRotate]);
+  }, [autoRotate, isManuallyOverridden]);
 
   // Handle resize on container size changes
   useEffect(() => {
@@ -220,9 +298,17 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
     return () => observer.disconnect();
   }, []);
 
+  const handleReset = () => {
+    setIsManuallyOverridden(false);
+    if (chartRef.current && !disposedRef.current) {
+      const offsetMinutes = new Date().getTimezoneOffset();
+      const localLongitude = (-offsetMinutes / 60) * 15;
+      rotateGlobeTo(chartRef.current, 25, localLongitude);
+    }
+  };
+
   return (
     <div
-      ref={containerRef}
       className={className}
       style={{
         width: '100%',
@@ -230,8 +316,50 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
         position: 'relative',
         ...style,
       }}
-      data-globe-ready={isReady}
-    />
+    >
+      <div
+        ref={containerRef}
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+        data-globe-ready={isReady}
+      />
+      {isManuallyOverridden && (
+        <button
+          onClick={handleReset}
+          style={{
+            position: 'absolute',
+            bottom: '12px',
+            right: '12px',
+            background: 'rgba(9, 25, 36, 0.85)',
+            border: '1px solid rgba(0, 242, 254, 0.4)',
+            color: '#00f2fe',
+            fontFamily: 'monospace',
+            fontSize: '10px',
+            padding: '4px 8px',
+            cursor: 'pointer',
+            zIndex: 100,
+            borderRadius: '2px',
+            letterSpacing: '0.1em',
+            boxShadow: '0 0 10px rgba(0, 242, 254, 0.15)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(0, 242, 254, 0.15)';
+            e.currentTarget.style.borderColor = '#00f2fe';
+            e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(9, 25, 36, 0.85)';
+            e.currentTarget.style.borderColor = 'rgba(0, 242, 254, 0.4)';
+            e.currentTarget.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.15)';
+          }}
+        >
+          RESET
+        </button>
+      )}
+    </div>
   );
 });
 

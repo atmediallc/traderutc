@@ -103,7 +103,7 @@ export function buildGlobeOption(
       },
       emphasis: {
         label: {
-          show: true,
+          show: false,
           color: theme.countryLabelColor,
           fontSize: 13,
           fontWeight: 'bold',
@@ -194,7 +194,7 @@ export function disposeGlobeChart(chart: ECharts | null): void {
   }
 
   try {
-    if (!internal._disposed) {
+    if (!chart.isDisposed()) {
       chart.dispose();
     }
   } catch {
@@ -218,8 +218,7 @@ export function setGlobeAutoRotate(
   enabled: boolean
 ): void {
   try {
-    const internal = chart as unknown as EChartsInternal;
-    if (!chart || internal._disposed) return;
+    if (!chart || chart.isDisposed()) return;
 
     // Access the internal ECharts model via private `_model` property.
     // echarts-gl breaks on any setOption that touches `globe`, so we
@@ -242,9 +241,81 @@ export function setGlobeAutoRotate(
     }
 
     // Force zrender to re-render so the globe reads the updated flag
-    chart.getZr().refresh();
+    const zr = typeof chart.getZr === 'function' ? chart.getZr() : null;
+    if (zr) {
+      zr.refresh();
+    }
   } catch (err) {
     console.error('Failed to setGlobeAutoRotate:', err);
+  }
+}
+
+/**
+ * Animates the globe camera smoothly by directly mutating the internal ECharts-GL model.
+ * This bypasses the buggy chart.setOption() which crashes with dispose errors.
+ */
+export function animateGlobeTo(
+  chart: ECharts,
+  targetLat: number,
+  targetLng: number,
+  targetDistance?: number,
+  duration: number = 1200
+): void {
+  try {
+    if (!chart || chart.isDisposed()) return;
+
+    interface InternalViewCtrl {
+      alpha: number;
+      beta: number;
+      distance: number;
+    }
+    interface InternalGlobe {
+      viewControl?: InternalViewCtrl;
+    }
+
+    const chartAny = chart as unknown as {
+      _model?: { globe?: InternalGlobe };
+      getZr: () => { refresh: () => void };
+    };
+    const viewCtrl = chartAny._model?.globe?.viewControl;
+    if (!viewCtrl) return;
+
+    const startLat = viewCtrl.alpha ?? 25;
+    const startLng = viewCtrl.beta ?? 40;
+    const startDist = viewCtrl.distance ?? 180;
+    const endDist = targetDistance ?? startDist;
+
+    const startTime = performance.now();
+
+    const animate = (time: number) => {
+      if (chart.isDisposed()) return;
+      const elapsed = time - startTime;
+      const progress = Math.min(1, elapsed / duration);
+
+      // Cubic out easing: f(t) = 1 - (1-t)^3
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      viewCtrl.alpha = startLat + (targetLat - startLat) * ease;
+      
+      // Shortest path longitude wrapping
+      let diffLng = targetLng - startLng;
+      while (diffLng > 180) diffLng -= 360;
+      while (diffLng < -180) diffLng += 360;
+      viewCtrl.beta = startLng + diffLng * ease;
+
+      viewCtrl.distance = startDist + (endDist - startDist) * ease;
+
+      const zr = typeof chart.getZr === 'function' ? chart.getZr() : null;
+      zr?.refresh();
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  } catch (err) {
+    console.error('Failed to animateGlobeTo:', err);
   }
 }
 
@@ -257,24 +328,7 @@ export function rotateGlobeTo(
   lng: number,
   distance?: number
 ): void {
-  try {
-    const internal = chart as unknown as EChartsInternal;
-    if (chart && !internal._disposed) {
-      chart.setOption({
-        globe: {
-          viewControl: {
-            alpha: lat,
-            beta: lng,
-            ...(distance != null ? { distance } : {}),
-            animationDurationUpdate: 1200,
-            animationEasingUpdate: 'cubicInOut',
-          },
-        },
-      });
-    }
-  } catch (err) {
-    console.error('Failed to rotateGlobeTo:', err);
-  }
+  animateGlobeTo(chart, lat, lng, distance, 1200);
 }
 
 /**
@@ -282,17 +336,14 @@ export function rotateGlobeTo(
  */
 export function setGlobeZoom(chart: ECharts, distance: number): void {
   try {
-    const internal = chart as unknown as EChartsInternal;
-    if (chart && !internal._disposed) {
-      chart.setOption({
-        globe: {
-          viewControl: {
-            distance,
-            animationDurationUpdate: 800,
-            animationEasingUpdate: 'cubicOut',
-          },
-        },
-      });
+    if (!chart || chart.isDisposed()) return;
+    const chartAny = chart as unknown as {
+      _model?: { globe?: { viewControl?: Record<string, unknown> } };
+    };
+    const ecModel = chartAny._model;
+    const vc = ecModel?.globe?.viewControl;
+    if (vc && typeof vc.alpha === 'number' && typeof vc.beta === 'number') {
+      animateGlobeTo(chart, vc.alpha, vc.beta, distance, 800);
     }
   } catch (err) {
     console.error('Failed to setGlobeZoom:', err);

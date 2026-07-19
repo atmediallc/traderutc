@@ -10,7 +10,7 @@
 
 export interface GlobeTextureSet {
   /** Base Earth color map (day side) */
-  earth: string;
+  earth: string | HTMLCanvasElement;
   /** Bump / height map for terrain displacement */
   bump: string;
   /** Clouds overlay texture */
@@ -23,7 +23,7 @@ export interface GlobeTextureSet {
   environment: string | HTMLCanvasElement;
 }
 
-const LOCAL_TEXTURES: Omit<GlobeTextureSet, 'environment'> = {
+const LOCAL_TEXTURES = {
   earth: '/textures/earth-day-2k.jpg',
   bump: '/textures/earth-bump-2k.jpg',
   clouds: '/textures/earth-clouds-2k.jpg',
@@ -124,6 +124,13 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
 /** Cached starfield canvas (created once) */
 let _starfieldCanvas: HTMLCanvasElement | null = null;
 
+export function getProcessedEarthCanvas(): HTMLCanvasElement | string {
+  // Use the raw texture URL directly instead of a processed canvas
+  // to avoid race conditions where ECharts renders an empty white canvas
+  // before the image loads.
+  return LOCAL_TEXTURES.earth;
+}
+
 /**
  * Returns the full texture set for the ECharts globe.
  * Uses high-quality local textures + procedural starfield.
@@ -134,6 +141,7 @@ export function getGlobeTextures(): GlobeTextureSet {
   }
   return {
     ...LOCAL_TEXTURES,
+    earth: getProcessedEarthCanvas(),
     environment: _starfieldCanvas,
   };
 }
@@ -146,11 +154,12 @@ export function createGlobeTextureOptions(textures: GlobeTextureSet) {
   return {
     baseTexture: textures.earth,
     heightTexture: textures.bump,
-    displacementScale: 0.05,
+    displacementScale: 0.02,
     environment: textures.environment,
+    specularIntensity: 0.0,
     shading: 'realistic' as const,
     realisticMaterial: {
-      roughness: 0.65,
+      roughness: 0.95,
       metalness: 0.0,
       textureTiling: [1, 1],
     },
