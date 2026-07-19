@@ -87,13 +87,13 @@ export function AppShell({ children }: AppShellProps) {
       <CommandPalette />
       <CoordinateTelemetryCard />
 
-      {/* Floating Control Bar (bottom-center) */}
+      {/* Floating Control Bar (bottom-center, above FooterBar) */}
       <div
-        className="fixed bottom-19 left-1/2 -translate-x-1/2 z-100 flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-300 hover:border-white/15"
+        className="fixed bottom-10 left-1/2 -translate-x-1/2 z-95 flex items-center gap-1 px-2 py-1.5 rounded-xl border border-white/8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all duration-200 hover:border-white/12 hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.9)]"
         style={{
-          background: 'linear-gradient(180deg, rgba(20,25,35,0.75) 0%, rgba(10,12,18,0.90) 100%)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
+          background: 'linear-gradient(180deg, rgba(20,25,35,0.82) 0%, rgba(10,12,18,0.92) 100%)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
         }}
       >
         {/* Group 1: Panels */}
@@ -190,36 +190,36 @@ function ControlButton({
   variant?: 'blue' | 'emerald' | 'neutral';
 }) {
   const activeClass = {
-    blue: 'bg-sky-500/10 text-sky-400 border-sky-500/35 shadow-[0_0_15px_rgba(56,189,248,0.2)]',
-    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/35 shadow-[0_0_15px_rgba(52,211,153,0.2)]',
-    neutral: 'bg-white/10 text-white border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.15)]',
+    blue: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
+    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    neutral: 'bg-white/10 text-white border-white/20',
   }[variant];
 
   const indicatorColor = {
-    blue: 'bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]',
-    emerald: 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]',
-    neutral: 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]',
+    blue: 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.7)]',
+    emerald: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]',
+    neutral: 'bg-white shadow-[0_0_6px_rgba(255,255,255,0.7)]',
   }[variant];
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        "relative flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] font-sans font-semibold tracking-wide uppercase transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 border border-transparent select-none",
+        "relative flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-mono font-medium tracking-wide uppercase transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 border border-transparent select-none",
         active
           ? activeClass
-          : "text-white/45 hover:text-white/80 hover:bg-white/[0.06]"
+          : "text-white/40 hover:text-white/75 hover:bg-white/5"
       )}
       aria-label={label}
     >
       {icon}
       <span className="hidden sm:inline">{label}</span>
-      
-      {/* Premium indicator underline */}
+
+      {/* Active indicator underline */}
       {active && (
         <motion.span
           layoutId={`active-bar-${variant}`}
-          className={cn("absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full", indicatorColor)}
+          className={cn("absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full", indicatorColor)}
           transition={{ type: 'spring', stiffness: 350, damping: 25 }}
         />
       )}
