@@ -89,7 +89,7 @@ function InlineBar({ value, color }: { value: number; color: 'emerald' | 'amber'
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
       </div>
-      <span className="text-[10px] font-mono font-semibold text-white/60 tabular-nums">
+      <span suppressHydrationWarning className="text-[10px] font-mono font-semibold text-white/60 tabular-nums">
         {Math.round(value)}%
       </span>
     </div>
