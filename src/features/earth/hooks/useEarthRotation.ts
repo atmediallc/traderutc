@@ -10,6 +10,7 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Mesh } from 'three';
 import { earthEngine } from '@/engines';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
 
 /**
  * Applies real-time astronomical rotation to a Three.js mesh ref.
@@ -19,7 +20,7 @@ import { earthEngine } from '@/engines';
 export function useEarthRotation(meshRef: React.RefObject<Mesh | null>): void {
   useFrame(() => {
     if (meshRef.current) {
-      const utcMs = Date.now();
+      const utcMs = useUTCStore.getState().utcMs;
       meshRef.current.rotation.y = earthEngine.getRotationAngleY(utcMs);
     }
   });
@@ -30,10 +31,10 @@ export function useEarthRotation(meshRef: React.RefObject<Mesh | null>): void {
  * Useful for shader uniforms or other calculations.
  */
 export function useEarthRotationAngle(): React.RefObject<number> {
-  const angleRef = useRef(earthEngine.getRotationAngleY(Date.now()));
+  const angleRef = useRef(earthEngine.getRotationAngleY(useUTCStore.getState().utcMs));
 
   useFrame(() => {
-    angleRef.current = earthEngine.getRotationAngleY(Date.now());
+    angleRef.current = earthEngine.getRotationAngleY(useUTCStore.getState().utcMs);
   });
 
   return angleRef;

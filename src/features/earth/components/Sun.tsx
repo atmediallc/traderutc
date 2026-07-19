@@ -11,13 +11,15 @@ import { useFrame } from '@react-three/fiber';
 import type { DirectionalLight } from 'three';
 import { astronomicalEngine } from '@/engines';
 import { SUN_CONFIG } from '../constants/earth.constants';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
 
 export function Sun() {
   const lightRef = useRef<DirectionalLight>(null);
 
   useFrame(() => {
     if (lightRef.current) {
-      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
+      const utcMs = useUTCStore.getState().utcMs;
+      const sunDir = astronomicalEngine.getSolarPosition(utcMs).direction;
       // Position light far away in the sun's direction
       lightRef.current.position.set(
         sunDir[0] * 10,

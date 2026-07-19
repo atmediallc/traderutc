@@ -75,10 +75,10 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Floating Control Bar (bottom-left) */}
       <div
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-2 py-1.5 rounded-xl border border-white/[0.08]"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-2 py-1.5 rounded-lg border border-white/8"
         style={{
-          background: 'hsla(220, 20%, 6%, 0.8)',
-          backdropFilter: 'blur(20px) saturate(180%)',
+          background: 'hsla(220, 25%, 3%, 0.85)',
+          backdropFilter: 'blur(16px)',
         }}
       >
         <ControlButton
@@ -107,7 +107,7 @@ export function AppShell({ children }: AppShellProps) {
           onClick={() => {}}
         />
 
-        <div className="w-px h-5 bg-white/[0.08] mx-1" />
+        <div className="w-px h-5 bg-white/8 mx-1" />
 
         <ControlButton
           icon={<RotateCcw className="w-4 h-4" />}
@@ -147,13 +147,13 @@ function ControlButton({
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg
+        flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
         text-[10px] font-mono font-medium tracking-wider uppercase
         transition-all duration-200 cursor-pointer
         ${
           active
             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-            : 'text-white/50 hover:text-white/80 hover:bg-white/[0.06] border border-transparent'
+            : 'text-white/50 hover:text-white/80 hover:bg-white/5 border border-transparent'
         }
       `}
       aria-label={label}

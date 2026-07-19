@@ -1,18 +1,19 @@
 /**
  * LeftSidebar Component
  *
- * Filter panel for markets. Allows filtering by status,
- * region, or asset class (future).
+ * Highly detailed dashboard showing active and inactive trading sessions globally,
+ * grouped by regional segments, including GIS telemetry coordinates.
  */
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Filter, Globe2 } from 'lucide-react';
+import { X, Filter, Globe2, Compass } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { getStatusColor } from '../hooks/useMarketStatus';
-import { marketIntelligenceEngine, MARKETS } from '@/engines';
+import { marketIntelligenceEngine, MARKETS, Market } from '@/engines';
 
 export function LeftSidebar() {
   const isOpen = useLayoutStore((s) => s.leftSidebarOpen);
@@ -21,6 +22,20 @@ export function LeftSidebar() {
   const selectedMarketId = useMarketsStore((s) => s.selectedMarketId);
   const utcMs = useUTCStore((s) => s.utcMs);
 
+  const [regionFilter, setRegionFilter] = useState<'ALL' | 'AMER' | 'EMEA' | 'APAC'>('ALL');
+
+  function getMarketRegion(market: Market): 'AMER' | 'EMEA' | 'APAC' {
+    const tz = market.timezone;
+    if (tz.startsWith('America/')) return 'AMER';
+    if (tz.startsWith('Europe/') || tz.startsWith('Africa/') || tz.startsWith('Atlantic/') || tz.startsWith('Asia/Dubai') || tz.startsWith('Asia/Jerusalem')) return 'EMEA';
+    return 'APAC';
+  }
+
+  const filteredMarketsByRegion = MARKETS.filter((market) => {
+    if (regionFilter === 'ALL') return true;
+    return getMarketRegion(market) === regionFilter;
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -28,67 +43,105 @@ export function LeftSidebar() {
           initial={{ opacity: 0, x: -300 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -300 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="absolute left-0 top-10 bottom-0 z-40 w-72 glass-dense border-r border-white/[0.08] shadow-[10px_0_30px_hsla(0,0%,0%,0.5)] flex flex-col"
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="absolute left-0 top-10 bottom-0 z-40 w-80 glass-dense border-r border-white/8 shadow-[10px_0_30px_hsla(0,0%,0%,0.65)] flex flex-col font-mono"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
-            <div className="flex items-center gap-2 text-white/90">
-              <Filter className="w-4 h-4" />
-              <h2 className="text-sm font-semibold tracking-wide uppercase">
-                Markets
+          <div className="flex items-center justify-between p-4 border-b border-white/8 bg-white/2 select-none">
+            <div className="flex items-center gap-2 text-white/95">
+              <Globe2 className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-xs font-bold tracking-widest uppercase">
+                MONITOR // SESSIONS
               </h2>
             </div>
             <button
               onClick={toggle}
-              className="p-1 rounded-md text-white/50 hover:bg-white/[0.1] hover:text-white transition-colors"
+              className="p-1 rounded text-white/40 hover:bg-white/5 hover:text-white transition-all"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Quick List */}
+          {/* Region Tabs */}
+          <div className="grid grid-cols-4 gap-1 p-2 bg-black/20 border-b border-white/5 text-[9px] font-bold select-none">
+            {(['ALL', 'AMER', 'EMEA', 'APAC'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setRegionFilter(tab)}
+                className={`py-1 rounded border transition-all text-center tracking-wider ${
+                  regionFilter === tab
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold'
+                    : 'border-transparent text-white/40 hover:text-white/70 hover:bg-white/3'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Markets Monitor List */}
           <div className="flex-1 overflow-y-auto scrollbar-hide p-2 space-y-1">
-            {MARKETS.map((market) => {
+            {filteredMarketsByRegion.map((market) => {
               const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
               const statusColor = getStatusColor(status.status);
               const isSelected = selectedMarketId === market.id;
+              const region = getMarketRegion(market);
+
+              const [lat, lng] = market.coordinates;
+              const latStr = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'}`;
+              const lngStr = `${Math.abs(lng).toFixed(2)}°${lng >= 0 ? 'E' : 'W'}`;
 
               return (
                 <button
                   key={market.id}
                   onClick={() => selectMarket(market.id)}
                   className={`
-                    w-full flex items-center justify-between p-3 rounded-lg transition-all text-left
-                    ${isSelected 
-                      ? 'bg-white/[0.1] border border-white/[0.15]' 
-                      : 'hover:bg-white/[0.04] border border-transparent'}
+                    w-full text-left p-2.5 rounded border transition-all flex flex-col gap-1.5
+                    ${isSelected
+                      ? 'bg-white/10 border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.05)]'
+                      : 'bg-white/0 border-transparent hover:bg-white/3 hover:border-white/5'}
                   `}
                 >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold text-white/90">
-                      {market.city}
-                    </span>
-                    <span className="text-[10px] font-mono text-white/40">
-                      {market.country}
-                    </span>
-                  </div>
-                  
-                  <div className="flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-1.5">
-                      <span 
-                        className="text-[9px] font-mono tracking-wider font-bold"
-                        style={{ color: statusColor }}
-                      >
-                        {status.status.replace('_', ' ')}
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-col">
+                      <span className={`text-[11px] font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-white/90'}`}>
+                        {market.city.toUpperCase()}
                       </span>
-                      <div 
-                        className="w-1.5 h-1.5 rounded-full" 
-                        style={{ backgroundColor: statusColor, boxShadow: `0 0 6px ${statusColor}` }}
-                      />
+                      <span className="text-[8px] text-white/30 tracking-widest uppercase">
+                        {market.exchanges[0]} // {region}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-mono text-white/50">
-                      {status.localTime.slice(0, 5)}
+
+                    <div className="flex flex-col items-end gap-1">
+                      <div suppressHydrationWarning className="text-xs font-bold text-white/80 font-mono tracking-tight">
+                        {status.localTime.slice(0, 5)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span
+                          className="text-[8px] font-bold tracking-wider"
+                          style={{ color: statusColor }}
+                        >
+                          {status.status.replace('_', ' ')}
+                        </span>
+                        <div
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{
+                            backgroundColor: statusColor,
+                            boxShadow: `0 0 6px ${statusColor}`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Telemetry Footer */}
+                  <div className="flex items-center justify-between text-[8px] text-white/30 border-t border-white/5 pt-1.5">
+                    <span className="flex items-center gap-0.5">
+                      <Compass className="w-2 h-2 text-white/20" />
+                      {latStr} / {lngStr}
+                    </span>
+                    <span>
+                      UTC{status.utcOffset >= 0 ? `+${status.utcOffset}` : status.utcOffset}
                     </span>
                   </div>
                 </button>

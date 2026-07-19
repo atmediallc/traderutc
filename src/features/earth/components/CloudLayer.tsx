@@ -18,6 +18,7 @@ import {
 import type { Mesh } from 'three';
 import { EARTH_TEXTURES, DEFAULT_EARTH_CONFIG } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { astronomicalEngine, earthEngine } from '@/engines';
 
 const cloudVertexShader = /* glsl */ `
@@ -87,7 +88,7 @@ export function CloudLayer() {
   );
 
   useFrame((state, delta) => {
-    const utcMs = Date.now();
+    const utcMs = useUTCStore.getState().utcMs;
 
     if (meshRef.current) {
       // Base rotation matches Earth, plus a slow drift
@@ -97,7 +98,7 @@ export function CloudLayer() {
 
     if (materialRef.current) {
       materialRef.current.uniforms.sunDirection.value = astronomicalEngine.getSolarPosition(utcMs).direction;
-      materialRef.current.uniforms.time.value = state.clock.elapsedTime;
+      materialRef.current.uniforms.time.value = (utcMs % 86400000) / 1000;
     }
   });
 

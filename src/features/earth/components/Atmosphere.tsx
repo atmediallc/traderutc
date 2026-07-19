@@ -21,6 +21,7 @@ import {
 } from '../constants/earth.constants';
 import { useEarthStore } from '../stores/earth.store';
 import { astronomicalEngine } from '@/engines';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
 import {
   atmosphereVertexShader,
   atmosphereFragmentShader,
@@ -57,7 +58,8 @@ export function Atmosphere() {
 
   useFrame(() => {
     if (materialRef.current) {
-      const sunDir = astronomicalEngine.getSolarPosition(Date.now()).direction;
+      const utcMs = useUTCStore.getState().utcMs;
+      const sunDir = astronomicalEngine.getSolarPosition(utcMs).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
     }
   });

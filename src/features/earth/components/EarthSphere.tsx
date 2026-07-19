@@ -35,17 +35,19 @@ import {
 } from '../constants/earth.constants';
 import { earthVertexShader, earthFragmentShader } from '../shaders/earth.shaders';
 import { earthEngine, astronomicalEngine } from '@/engines';
+import { useUTCStore } from '@/features/utc/stores/utc.store';
 
 export function EarthSphere() {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<ShaderMaterial>(null);
 
   // Load only the textures the shader actually uses
-  const [dayMap, nightMap, specularMap, normalMap] = useLoader(TextureLoader, [
+  const [dayMap, nightMap, specularMap, normalMap, cloudMap] = useLoader(TextureLoader, [
     EARTH_TEXTURES.day,
     EARTH_TEXTURES.night,
     EARTH_TEXTURES.specular,
     EARTH_TEXTURES.normal,
+    EARTH_TEXTURES.clouds,
   ]);
 
   // Configure texture color spaces and filtering
@@ -59,14 +61,14 @@ export function EarthSphere() {
       texture.wrapT = ClampToEdgeWrapping;
     });
 
-    [specularMap, normalMap].forEach((texture) => {
+    [specularMap, normalMap, cloudMap].forEach((texture) => {
       texture.minFilter = LinearMipmapLinearFilter;
       texture.magFilter = LinearFilter;
       texture.anisotropy = 8;
       texture.wrapS = ClampToEdgeWrapping;
       texture.wrapT = ClampToEdgeWrapping;
     });
-  }, [dayMap, nightMap, specularMap, normalMap]);
+  }, [dayMap, nightMap, specularMap, normalMap, cloudMap]);
 
   // Create shader uniforms — exactly one per shader uniform
   const uniforms = useMemo(
@@ -75,6 +77,7 @@ export function EarthSphere() {
       nightTexture: { value: nightMap },
       specularTexture: { value: specularMap },
       normalTexture: { value: normalMap },
+      cloudTexture: { value: cloudMap },
       sunDirection: { value: [0, 0, 1] as [number, number, number] },
       ambientIntensity: { value: 0.02 },
       specularStrength: { value: EARTH_PBR_CONFIG.oceanSpecularStrength },
@@ -83,8 +86,9 @@ export function EarthSphere() {
       oceanSpecularPower: { value: EARTH_PBR_CONFIG.oceanSpecularPower },
       cityBloomStrength: { value: EARTH_PBR_CONFIG.cityBloomStrength },
       normalScale: { value: EARTH_PBR_CONFIG.normalScale },
+      time: { value: 0 },
     }),
-    [dayMap, nightMap, specularMap, normalMap]
+    [dayMap, nightMap, specularMap, normalMap, cloudMap]
   );
 
   // Geometry (memoized)
@@ -100,7 +104,7 @@ export function EarthSphere() {
 
   // Update rotation and sun direction every frame using real UTC time
   useFrame(() => {
-    const utcMs = Date.now();
+    const utcMs = useUTCStore.getState().utcMs;
 
     // Astronomical rotation
     if (meshRef.current) {
@@ -111,6 +115,7 @@ export function EarthSphere() {
     if (materialRef.current) {
       const sunDir = astronomicalEngine.getSolarPosition(utcMs).direction;
       materialRef.current.uniforms.sunDirection.value = sunDir;
+      materialRef.current.uniforms.time.value = (utcMs % 86400000) / 1000;
     }
   });
 

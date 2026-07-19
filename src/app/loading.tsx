@@ -9,7 +9,7 @@ export default function Loading() {
       <div className="flex flex-col items-center gap-6">
         {/* Orbital loading animation */}
         <div className="relative w-20 h-20">
-          <div className="absolute inset-0 rounded-full border-2 border-white/[0.04]" />
+          <div className="absolute inset-0 rounded-full border-2 border-white/5" />
           <div
             className="absolute inset-0 rounded-full border-2 border-transparent border-t-emerald-400/50 animate-spin"
             style={{ animationDuration: '1.2s' }}
