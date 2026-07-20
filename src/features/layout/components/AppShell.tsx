@@ -29,8 +29,6 @@ import {
   Search,
   Calendar,
   RotateCcw,
-  Eye,
-  EyeOff,
 } from 'lucide-react';
 import { useEarthStore } from '@/features/earth/stores/earth.store';
 import { motion } from 'framer-motion';
@@ -64,8 +62,6 @@ export function AppShell({ children }: AppShellProps) {
   const autoRotate = useEarthStore((s) => s.autoRotate);
   const setAutoRotate = useEarthStore((s) => s.setAutoRotate);
   const resetCamera = useEarthStore((s) => s.resetCamera);
-  const postProcessingEnabled = useEarthStore((s) => s.postProcessingEnabled);
-  const togglePostProcessing = useEarthStore((s) => s.togglePostProcessing);
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black font-sans">
@@ -152,13 +148,6 @@ export function AppShell({ children }: AppShellProps) {
             label={autoRotate ? 'Stop' : 'Rotate'}
             onClick={() => setAutoRotate(!autoRotate)}
             active={autoRotate}
-            variant="emerald"
-          />
-          <ControlButton
-            icon={postProcessingEnabled ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            label="FX"
-            onClick={togglePostProcessing}
-            active={postProcessingEnabled}
             variant="emerald"
           />
           <ControlButton

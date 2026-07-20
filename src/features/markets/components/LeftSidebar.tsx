@@ -1,19 +1,47 @@
 /**
  * LeftSidebar Component
  *
- * Highly detailed dashboard showing active and inactive trading sessions globally,
- * grouped by regional segments, including GIS telemetry coordinates.
+ * Professional institutional-grade market monitor panel with session
+ * progress visualization, GIS telemetry, and regional grouping.
+ * Inspired by Bloomberg Terminal and TradingView layouts.
  */
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Globe2, Compass } from 'lucide-react';
+import { X, Globe2, Compass, TrendingUp, TrendingDown } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
 import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { getStatusColor } from '../hooks/useMarketStatus';
 import { marketIntelligenceEngine, MARKETS, Market } from '@/engines';
+import type { ComputedMarketStatus } from '@/engines/shared/engine.types';
+
+/* ─── Region classification ─── */
+const REGION_TABS = ['ALL', 'AMER', 'EMEA', 'APAC'] as const;
+type RegionTab = (typeof REGION_TABS)[number];
+
+function getMarketRegion(market: Market): 'AMER' | 'EMEA' | 'APAC' {
+  const tz = market.timezone;
+  if (tz.startsWith('America/')) return 'AMER';
+  if (tz.startsWith('Europe/') || tz.startsWith('Africa/') || tz.startsWith('Atlantic/') || tz.startsWith('Asia/Dubai') || tz.startsWith('Asia/Jerusalem')) return 'EMEA';
+  return 'APAC';
+}
+
+/* ─── Helpers ─── */
+function computeSessionProgress(status: ComputedMarketStatus, market: Market): number {
+  if (status.status !== 'OPEN') return 0;
+  const [openH, openM] = market.openLocal.split(':').map(Number);
+  const [closeH, closeM] = market.closeLocal.split(':').map(Number);
+  const openMinutes = openH * 60 + openM;
+  const closeMinutes = closeH * 60 + closeM;
+  const totalDuration = closeMinutes - openMinutes;
+  if (totalDuration <= 0) return 0;
+  const [h, m] = status.localTime.split(':').map(Number);
+  const nowMinutes = h * 60 + m;
+  const elapsed = Math.max(0, Math.min(totalDuration, nowMinutes - openMinutes));
+  return (elapsed / totalDuration) * 100;
+}
 
 export function LeftSidebar() {
   const isOpen = useLayoutStore((s) => s.leftSidebarOpen);
@@ -22,139 +50,252 @@ export function LeftSidebar() {
   const selectedMarketId = useMarketsStore((s) => s.selectedMarketId);
   const utcMs = useUTCStore((s) => s.utcMs);
 
-  const [regionFilter, setRegionFilter] = useState<'ALL' | 'AMER' | 'EMEA' | 'APAC'>('ALL');
+  const [regionFilter, setRegionFilter] = useState<RegionTab>('ALL');
 
-  function getMarketRegion(market: Market): 'AMER' | 'EMEA' | 'APAC' {
-    const tz = market.timezone;
-    if (tz.startsWith('America/')) return 'AMER';
-    if (tz.startsWith('Europe/') || tz.startsWith('Africa/') || tz.startsWith('Atlantic/') || tz.startsWith('Asia/Dubai') || tz.startsWith('Asia/Jerusalem')) return 'EMEA';
-    return 'APAC';
-  }
+  /* Compute all market statuses once */
+  const allStatuses = useMemo(
+    () => MARKETS.map((m) => ({ market: m, status: marketIntelligenceEngine.computeMarketStatus(m.id, utcMs), region: getMarketRegion(m) })),
+    [utcMs],
+  );
 
-  const filteredMarketsByRegion = MARKETS.filter((market) => {
-    if (regionFilter === 'ALL') return true;
-    return getMarketRegion(market) === regionFilter;
-  });
+  const filteredMarkets = useMemo(
+    () =>
+      regionFilter === 'ALL'
+        ? allStatuses
+        : allStatuses.filter(({ region }) => region === regionFilter),
+    [allStatuses, regionFilter],
+  );
+
+  /* Counts per region for tab badges */
+  const regionCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: MARKETS.length };
+    for (const tab of REGION_TABS) {
+      if (tab === 'ALL') continue;
+      counts[tab] = MARKETS.filter((m) => getMarketRegion(m) === tab).length;
+    }
+    return counts;
+  }, []);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, x: -300 }}
+        <motion.aside
+          initial={{ opacity: 0, x: -360 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -300 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="absolute left-0 top-10 bottom-0 z-40 w-80 border-r border-white/10 shadow-[10px_0_30px_rgba(0,0,0,0.8)] flex flex-col font-sans"
+          exit={{ opacity: 0, x: -360 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute left-3 top-[52px] bottom-3 z-40 w-[22rem] rounded-lg border border-[var(--border-default)] flex flex-col will-change-transform overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, rgba(15,20,30,0.8) 0%, rgba(5,7,12,0.95) 100%)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            background: 'linear-gradient(180deg, rgba(8,12,20,0.94) 0%, rgba(3,5,10,0.98) 100%)',
+            backdropFilter: 'blur(32px) saturate(190%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(190%)',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
           }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 select-none">
-            <div className="flex items-center gap-2 text-white/95">
-              <Globe2 className="w-4 h-4 text-emerald-400" />
-              <h2 className="text-xs font-bold tracking-widest uppercase">
-                MONITOR // SESSIONS
-              </h2>
+          {/* ─── Header ─── */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)] select-none shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-5 h-5 rounded-[4px] bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+                <Globe2 className="w-3 h-3 text-emerald-400" />
+              </div>
+              <div>
+                <h2 className="text-[11px] font-bold tracking-[0.12em] uppercase text-white/90">
+                  Market Monitor
+                </h2>
+                <p className="text-[8px] tracking-[0.2em] uppercase text-white/25">
+                  Global Trading Sessions
+                </p>
+              </div>
             </div>
             <button
               onClick={toggle}
-              className="p-1 rounded text-white/40 hover:bg-white/5 hover:text-white transition-all"
+              className="p-1 rounded-[4px] text-white/25 hover:bg-white/5 hover:text-white/60 transition-all"
+              aria-label="Close panel"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Region Tabs */}
-          <div className="grid grid-cols-4 gap-1 p-2 bg-black/20 border-b border-white/5 text-[9px] font-bold select-none">
-            {(['ALL', 'AMER', 'EMEA', 'APAC'] as const).map((tab) => (
+          {/* ─── Region Tabs ─── */}
+          <div className="flex gap-[3px] px-3 py-2 bg-white/[0.015] border-b border-[var(--border-subtle)] select-none shrink-0">
+            {REGION_TABS.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setRegionFilter(tab)}
-                className={`py-1 rounded border transition-all text-center tracking-wider ${
+                className={`relative flex-1 py-[5px] px-1 rounded-[3px] text-[9px] font-bold tracking-[0.1em] transition-all duration-150 ${
                   regionFilter === tab
-                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold'
-                    : 'border-transparent text-white/40 hover:text-white/70 hover:bg-white/3'
+                    ? 'text-emerald-400 bg-emerald-500/8'
+                    : 'text-white/30 hover:text-white/60 hover:bg-white/[0.04]'
                 }`}
               >
-                {tab}
+                <span className="relative z-10 flex items-center justify-center gap-1.5">
+                  {tab}
+                  <span
+                    className={`text-[7px] px-1 py-[1px] rounded-[2px] font-mono ${
+                      regionFilter === tab
+                        ? 'bg-emerald-500/20 text-emerald-400/80'
+                        : 'bg-white/5 text-white/25'
+                    }`}
+                  >
+                    {regionCounts[tab]}
+                  </span>
+                </span>
+                {regionFilter === tab && (
+                  <motion.div
+                    layoutId="region-tab-bg"
+                    className="absolute inset-0 rounded-[3px] border border-emerald-500/20"
+                    style={{ background: 'linear-gradient(180deg, rgba(52,211,153,0.08) 0%, rgba(52,211,153,0.03) 100%)' }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                  />
+                )}
               </button>
             ))}
           </div>
 
-          {/* Markets Monitor List */}
-          <div className="flex-1 overflow-y-auto scrollbar-hide p-2 space-y-1">
-            {filteredMarketsByRegion.map((market) => {
-              const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
-              // Session progress bar
+          {/* ─── Markets List ─── */}
+          <div className="flex-1 overflow-y-auto scrollbar-hide py-1.5 px-2 space-y-[2px]">
+            {filteredMarkets.map(({ market, status, region }) => {
               const statusColor = getStatusColor(status.status);
               const isSelected = selectedMarketId === market.id;
-              const region = getMarketRegion(market);
-
+              const progress = computeSessionProgress(status, market);
               const [lat, lng] = market.coordinates;
-              const latStr = `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'}`;
-              const lngStr = `${Math.abs(lng).toFixed(2)}°${lng >= 0 ? 'E' : 'W'}`;
 
               return (
                 <button
                   key={market.id}
                   onClick={() => selectMarket(market.id)}
                   className={`
-                    w-full text-left p-2.5 rounded border transition-all flex flex-col gap-1.5
+                    group w-full text-left rounded-[4px] transition-all duration-150
                     ${isSelected
-                      ? 'bg-white/10 border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.05)]'
-                      : 'bg-white/0 border-transparent hover:bg-white/3 hover:border-white/5'}
+                      ? 'bg-gradient-to-r from-white/[0.07] to-transparent border border-white/12'
+                      : 'border border-transparent hover:bg-white/[0.03] hover:border-white/[0.06]'}
                   `}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex flex-col">
-                      <span className={`text-[11px] font-bold transition-colors ${isSelected ? 'text-emerald-400' : 'text-white/90'}`}>
-                        {market.city.toUpperCase()}
-                      </span>
-                      <span className="text-[8px] text-white/30 tracking-widest uppercase">
-                        {market.exchanges[0]}{' // '}{region}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-1">
-                      <div suppressHydrationWarning className="text-xs font-bold text-white/80 font-mono tracking-tight">
-                        {status.localTime.slice(0, 5)}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span
-                          className="text-[8px] font-bold tracking-wider"
-                          style={{ color: statusColor }}
-                        >
-                          {status.status.replace('_', ' ')}
-                        </span>
+                  <div className="px-2.5 py-2">
+                    {/* Top row: city + exchange + time + status */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {/* Status indicator dot */}
                         <div
-                          className="w-1.5 h-1.5 rounded-full"
+                          className="w-[5px] h-[5px] rounded-full shrink-0 transition-all duration-300"
                           style={{
                             backgroundColor: statusColor,
-                            boxShadow: `0 0 6px ${statusColor}`,
+                            boxShadow: isSelected ? `0 0 6px ${statusColor}` : 'none',
                           }}
                         />
+                        <div className="min-w-0">
+                          <div className={`text-[11px] font-semibold tracking-tight leading-tight transition-colors ${
+                            isSelected ? 'text-white' : 'text-white/85 group-hover:text-white/95'
+                          }`}>
+                            {market.city.toUpperCase()}
+                          </div>
+                          <div className="text-[7px] font-medium tracking-[0.12em] uppercase text-white/25 leading-tight">
+                            {market.exchanges[0]}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          suppressHydrationWarning
+                          className="text-[11px] font-semibold font-mono text-white/70 tracking-tight"
+                        >
+                          {status.localTime.slice(0, 5)}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span
+                            className="text-[8px] font-bold tracking-[0.08em] uppercase"
+                            style={{ color: statusColor }}
+                          >
+                            {status.status === 'OPEN'
+                              ? 'OPEN'
+                              : status.status === 'CLOSED'
+                                ? 'CLSD'
+                                : status.status === 'PRE_MARKET'
+                                  ? 'PRE'
+                                  : status.status === 'AFTER_HOURS'
+                                    ? 'AH'
+                                    : status.status.replace('_', ' ')}
+                          </span>
+                          {status.status === 'OPEN' && (
+                            <TrendingUp className="w-2.5 h-2.5 text-emerald-400/60" />
+                          )}
+                          {status.status === 'CLOSED' && (
+                            <TrendingDown className="w-2.5 h-2.5 text-red-400/40" />
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Telemetry Footer */}
-                  <div className="flex items-center justify-between text-[8px] text-white/30 border-t border-white/5 pt-1.5">
-                    <span className="flex items-center gap-0.5">
-                      <Compass className="w-2 h-2 text-white/20" />
-                      {latStr} / {lngStr}
-                    </span>
-                    <span>
-                      UTC{status.utcOffset >= 0 ? `+${status.utcOffset}` : status.utcOffset}
-                    </span>
+                    {/* Bottom row: progress bar + telemetry */}
+                    <div className="flex items-center gap-3 mt-1.5">
+                      {/* Progress bar */}
+                      <div className="flex-1 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{
+                            background: `linear-gradient(90deg, ${statusColor}, ${statusColor}88)`,
+                            boxShadow: isSelected ? `0 0 6px ${statusColor}44` : 'none',
+                          }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ duration: 0.5, ease: 'easeOut' }}
+                        />
+                      </div>
+
+                      {/* Telemetry */}
+                      <div className="flex items-center gap-2 text-[7px] font-medium text-white/20 tracking-wider">
+                        <span className="flex items-center gap-1">
+                          <Compass className="w-2 h-2 text-white/15" />
+                          {Math.abs(lat).toFixed(1)}°{lat >= 0 ? 'N' : 'S'} / {Math.abs(lng).toFixed(1)}°{lng >= 0 ? 'E' : 'W'}
+                        </span>
+                        <span className="text-white/15">|</span>
+                        <span>
+                          UTC{status.utcOffset >= 0 ? `+${status.utcOffset}` : status.utcOffset}
+                        </span>
+                        {status.isDst && (
+                          <>
+                            <span className="text-white/15">|</span>
+                            <span className="text-amber-400/50">DST</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </button>
               );
             })}
+
+            {filteredMarkets.length === 0 && (
+              <div className="flex items-center justify-center h-24 text-[10px] text-white/20 tracking-wider">
+                NO MARKETS FOUND
+              </div>
+            )}
           </div>
-        </motion.div>
+
+          {/* ─── Footer Summary ─── */}
+          <div className="shrink-0 px-4 py-2 border-t border-[var(--border-subtle)] bg-white/[0.015]">
+            <div className="flex items-center justify-between text-[8px] font-medium tracking-wider text-white/25">
+              <span>
+                {filteredMarkets.length} / {MARKETS.length} SESSIONS
+              </span>
+              <span className="flex items-center gap-2">
+                {allStatuses.filter((s) => s.status.status === 'OPEN').length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-open)]" />
+                    <span className="text-emerald-400/60">{allStatuses.filter((s) => s.status.status === 'OPEN').length} OPEN</span>
+                  </span>
+                )}
+                {allStatuses.filter((s) => s.status.status === 'CLOSED').length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-closed)]" />
+                    <span className="text-red-400/50">{allStatuses.filter((s) => s.status.status === 'CLOSED').length} CLSD</span>
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
+        </motion.aside>
       )}
     </AnimatePresence>
   );
