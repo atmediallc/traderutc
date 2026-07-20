@@ -21,6 +21,14 @@ interface LayoutState {
   calendarOpen: boolean;
   /** Currently selected market ID (for card display) */
   selectedMarketId: string | null;
+  /** Screen width in px — set by AppShell via useBreakpoint */
+  screenWidth: number;
+  /** Derived: < 768px */
+  isMobile: boolean;
+  /** Derived: >= 768 && < 1024 */
+  isTablet: boolean;
+  /** Derived: >= 1024 */
+  isDesktop: boolean;
 }
 
 interface LayoutActions {
@@ -32,6 +40,8 @@ interface LayoutActions {
   toggleCalendar: () => void;
   selectMarket: (marketId: string | null) => void;
   closeAllPanels: () => void;
+  /** Called by AppShell on resize / mount */
+  setScreenWidth: (w: number) => void;
 }
 
 export const useLayoutStore = create<LayoutState & LayoutActions>((set) => ({
@@ -43,6 +53,10 @@ export const useLayoutStore = create<LayoutState & LayoutActions>((set) => ({
   searchOpen: false,
   calendarOpen: false,
   selectedMarketId: null,
+  screenWidth: 1920,
+  isMobile: false,
+  isTablet: false,
+  isDesktop: true,
 
   // Actions
   toggleLeftSidebar: () =>
@@ -66,5 +80,12 @@ export const useLayoutStore = create<LayoutState & LayoutActions>((set) => ({
       searchOpen: false,
       calendarOpen: false,
       selectedMarketId: null,
+    }),
+  setScreenWidth: (w) =>
+    set({
+      screenWidth: w,
+      isMobile: w < 768,
+      isTablet: w >= 768 && w < 1024,
+      isDesktop: w >= 1024,
     }),
 }));
