@@ -133,8 +133,8 @@ export function buildGlobeOption(
       postEffect: {
         enable: true,
         bloom: {
-          enable: true,
-          bloomIntensity: 0.12,
+          enable: false,
+          bloomIntensity: 0,
         },
         depthOfField: {
           enable: false,

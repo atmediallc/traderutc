@@ -31,8 +31,8 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.1",
     "@tailwindcss/postcss": "^4",
-    "@types/echarts": "^5.0.0",
     "@types/luxon": "^3.7.2",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -42,7 +42,6 @@
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "@opennextjs/cloudflare": "^latest",
     "wrangler": "^4.112.0"
   },
   "packageManager": "pnpm@11.15.0+sha512.266f8957a30d2be6e9468e5e66bcdedd35a794175f71b067ba8504d686cce1d0c0f429b33c323c3c569ad4891e667574a49ff71d1b89a22cc66f13c65818c578"

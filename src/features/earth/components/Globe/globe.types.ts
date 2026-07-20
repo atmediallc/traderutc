@@ -109,13 +109,13 @@ export const DEFAULT_GLOBE_THEME: GlobeTheme = {
   atmosphereGlowPower: 8,
   atmosphereInnerGlow: 3,
 
-  ambientIntensity: 0.4,
-  mainLightIntensity: 1.3,
+  ambientIntensity: 0.6,
+  mainLightIntensity: 0.8,
   mainLightAlpha: 35,
   mainLightBeta: 160,
   mainLightShadow: false,
 
-  shading: 'realistic',
+  shading: 'lambert',
 
   countryBorderColor: 'rgba(80, 180, 255, 0.5)',
   countryBorderWidth: 0.6,
