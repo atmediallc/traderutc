@@ -118,7 +118,7 @@ export function FooterBar() {
 
   return (
     <footer
-      className="fixed bottom-0 left-0 right-0 z-[90] h-7 border-t border-white/6 select-none flex items-center justify-between px-4"
+      className="fixed bottom-0 left-0 right-0 z-[90] h-7 border-t border-white/6 select-none flex items-center justify-between px-4 safe-area-bottom"
       style={{
         background: 'linear-gradient(180deg, rgba(8,10,16,0.92) 0%, rgba(4,5,10,0.98) 100%)',
         backdropFilter: 'blur(16px)',
@@ -140,14 +140,18 @@ export function FooterBar() {
       </div>
 
       {/* Center: Market wave */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
         <InlineBar value={marketIntel.wave.progress} color={waveColor} />
         <VDiv />
         <Metric label="LIQ" value={`${Math.round(marketIntel.liquidity)}%`} />
-        <VDiv />
-        <Metric label="ZOOM" value={`L${zoomLevel}`} />
-        <VDiv />
-        <Metric label="Q" value={qualityLabel} />
+        <div className="hidden sm:flex items-center gap-3">
+          <VDiv />
+          <Metric label="ZOOM" value={`L${zoomLevel}`} />
+        </div>
+        <div className="hidden sm:flex items-center gap-3">
+          <VDiv />
+          <Metric label="Q" value={qualityLabel} />
+        </div>
       </div>
 
       {/* Right: UTC time */}

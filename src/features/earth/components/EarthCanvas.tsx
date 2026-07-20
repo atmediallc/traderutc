@@ -10,7 +10,7 @@
  */
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useEarthStore } from '../stores/earth.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
@@ -63,7 +63,19 @@ export function EarthCanvas() {
     [setHoveredCountry]
   );
 
+  // Ensure chart resizes on window resize (fallback for soft keyboard / mobile rotation)
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
+    <div ref={containerRef} className="relative w-full h-full">
     <Globe
       countries={countriesData}
       autoRotate={autoRotate}
@@ -80,5 +92,6 @@ export function EarthCanvas() {
         height: '100%',
       }}
     />
+    </div>
   );
 }

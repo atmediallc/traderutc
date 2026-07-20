@@ -112,7 +112,7 @@ export function MarketSessionPanel() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -12, scale: 0.98 }}
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-          className="absolute top-12 left-1/2 -translate-x-1/2 z-50 w-240 max-h-[72vh] rounded-xl border border-white/10 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col"
+          className="absolute top-12 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-[60rem] max-h-[72vh] max-md:max-h-[85vh] rounded-xl border border-white/10 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-y-auto flex flex-col"
           style={{
             background: 'linear-gradient(180deg, rgba(10,12,18,0.92) 0%, rgba(6,8,14,0.96) 100%)',
             backdropFilter: 'blur(24px)',
@@ -176,13 +176,13 @@ export function MarketSessionPanel() {
           </div>
 
           {/* ─── Column Headers ─── */}
-          <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] gap-2 px-4 py-1.5 text-[8px] font-bold text-white/20 uppercase tracking-[0.12em] border-b border-white/5 shrink-0">
+          <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] max-md:grid-cols-[1.2fr_100px] gap-2 px-4 py-1.5 text-[8px] font-bold text-white/20 uppercase tracking-[0.12em] border-b border-white/5 shrink-0">
             <div>Market</div>
             <div>Status</div>
-            <div>Local</div>
-            <div>Schedule</div>
-            <div>Countdown</div>
-            <div className="text-right">UTC Offset</div>
+            <div className="max-md:hidden">Local</div>
+            <div className="max-md:hidden">Schedule</div>
+            <div className="max-md:hidden">Countdown</div>
+            <div className="max-md:hidden text-right">UTC Offset</div>
           </div>
 
           {/* ─── Market Groups ─── */}
@@ -277,7 +277,7 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
   const progress = computeSessionProgress(market, status);
 
   return (
-    <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] gap-2 px-4 py-2.5 border-b border-white/3 hover:bg-white/2 transition-colors items-center group">
+    <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] max-md:grid-cols-[1.2fr_100px] gap-2 px-4 py-2.5 border-b border-white/3 hover:bg-white/2 transition-colors items-center group">
       {/* Market Name */}
       <div className="flex items-center gap-2 min-w-0">
         {isOpen && (
@@ -316,13 +316,13 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
       {/* Local Time */}
       <div
         suppressHydrationWarning
-        className="text-[11px] font-mono font-bold text-white/75 tabular-nums"
+        className="text-[11px] font-mono font-bold text-white/75 tabular-nums max-md:hidden"
       >
         {status.localTime.slice(0, 5)}
       </div>
 
       {/* Schedule */}
-      <div className="text-[9px] text-white/35 font-mono tabular-nums">
+      <div className="text-[9px] text-white/35 font-mono tabular-nums max-md:hidden">
         {market.openLocal}–{market.closeLocal}
       </div>
 
@@ -343,7 +343,7 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
       </div>
 
       {/* UTC Offset */}
-      <div className="text-right">
+      <div className="text-right max-md:hidden">
         <span className="text-[9px] font-mono text-white/30 tabular-nums">
           UTC{status.utcOffset >= 0 ? '+' : ''}{status.utcOffset}
         </span>

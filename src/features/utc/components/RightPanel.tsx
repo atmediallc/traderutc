@@ -64,7 +64,7 @@ export function RightPanel() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 300 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="absolute right-0 top-10 bottom-0 z-40 w-80 border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.8)] flex flex-col font-sans"
+          className="absolute right-0 top-10 bottom-0 z-40 w-80 max-md:left-0 max-md:top-0 max-md:bottom-0 max-md:w-full max-md:max-w-[min(20rem,calc(100vw-1.5rem))] max-md:rounded-none border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.8)] flex flex-col font-sans"
           style={{
             background: 'linear-gradient(225deg, rgba(15,20,30,0.8) 0%, rgba(5,7,12,0.95) 100%)',
             backdropFilter: 'blur(20px)',

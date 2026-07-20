@@ -74,7 +74,7 @@ export function CommandPalette() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-2xl glass-dense rounded-xl overflow-hidden shadow-[0_16px_64px_hsla(0,0%,0%,0.8)] border border-white/15"
+            className="relative w-full max-w-[min(32rem,calc(100vw-2rem))] glass-dense rounded-xl overflow-hidden shadow-[0_16px_64px_hsla(0,0%,0%,0.8)] border border-white/15"
           >
             {/* Input Area */}
             <div className="flex items-center px-4 py-4 border-b border-white/8">
@@ -85,7 +85,7 @@ export function CommandPalette() {
                 placeholder="Search markets, cities, indexes... (e.g. 'NYSE', 'Tokyo', 'S&P')"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent border-none text-white/90 placeholder:text-white/30 focus:outline-none text-lg font-medium"
+                className="flex-1 bg-transparent border-none text-white/90 placeholder:text-white/30 focus:outline-none text-lg font-medium min-h-11"
               />
               <button 
                 onClick={toggle}

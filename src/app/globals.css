@@ -5,6 +5,28 @@
  * Professional Trading Dashboard Theme
  * ======================================== */
 
+/* --- Tailwind v4 Theme Tokens --- */
+@theme {
+  /* Fluid Typography Scale */
+  --font-size-t-xs: clamp(0.5625rem, 0.5rem + 0.2vw, 0.625rem);
+  --font-size-t-sm: clamp(0.625rem, 0.55rem + 0.25vw, 0.6875rem);
+  --font-size-t-base: clamp(0.6875rem, 0.6rem + 0.3vw, 0.75rem);
+  --font-size-card-sm: clamp(0.625rem, 0.55rem + 0.25vw, 0.75rem);
+  --font-size-card-base: clamp(0.75rem, 0.65rem + 0.3vw, 0.875rem);
+  --font-size-heading: clamp(0.6875rem, 0.6rem + 0.3vw, 0.875rem);
+
+  /* Panel Sizing Tokens */
+  --panel-width-side: clamp(16rem, 15rem + 3vw, 22rem);
+  --panel-width-card: clamp(16rem, 15rem + 3vw, 20rem);
+  --panel-width-session: clamp(90vw, 60rem, 60rem);
+  --panel-radius: 0.75rem;
+  --panel-radius-sm: 0.5rem;
+
+  /* Touch Targets */
+  --touch-min: 2.75rem;
+  --touch-comfortable: 3rem;
+}
+
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
   /* === Background Palette === */
@@ -205,4 +227,28 @@ body::before {
   .animate-pulse {
     animation: none;
   }
+}
+
+/* --- Safe Area Utilities (Notched Phones) --- */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* --- Glass Panel Utilities --- */
+.glass-panel {
+  background: linear-gradient(180deg, rgba(8,12,20,0.94) 0%, rgba(3,5,10,0.98) 100%);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.glass-panel-elevated {
+  background: linear-gradient(180deg, rgba(20,25,35,0.88) 0%, rgba(10,12,18,0.95) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }

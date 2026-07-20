@@ -61,7 +61,7 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} dark`}
       suppressHydrationWarning
     >
-      <body className="bg-black text-white antialiased overflow-hidden">
+      <body className="bg-black text-white antialiased">
         <QueryProvider>
           <TimeProvider>
             {children}

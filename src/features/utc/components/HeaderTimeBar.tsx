@@ -25,7 +25,7 @@ export function HeaderTimeBar() {
         WebkitBackdropFilter: 'blur(16px)',
       }}
     >
-      <div className="flex items-center justify-between px-4 h-8 overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 select-none">
+      <div className="flex items-center justify-between px-4 h-8 overflow-hidden overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 select-none">
         {/* Left: Brand */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex items-center gap-1.5">
@@ -40,7 +40,7 @@ export function HeaderTimeBar() {
         </div>
 
         {/* Center: Time formats — grouped by category */}
-        <div className="flex items-center gap-1 mx-3 overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 py-0.5 flex-1 justify-center">
+        <div className="flex items-center gap-1 mx-3 overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 py-0.5 flex-1 justify-center min-w-0">
           {/* Group 1: System Time */}
           <TimeChip label="UTC" value={formats.utc} accent />
           <TimeChip label="GMT" value={formats.gmt} />
@@ -68,7 +68,7 @@ export function HeaderTimeBar() {
         </div>
 
         {/* Right: Status indicator */}
-        <div className="flex items-center gap-3 shrink-0 text-[10px] font-mono">
+        <div className="hidden sm:flex items-center gap-3 shrink-0 text-[10px] font-mono">
           <div className="flex items-center gap-1.5 text-white/40">
             <span className="text-white/20">[</span>
             <span className="text-emerald-500 tracking-wider">SYNC_LOCK</span>

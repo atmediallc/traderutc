@@ -85,7 +85,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Floating Control Bar (bottom-center, above FooterBar) */}
       <div
-        className="fixed bottom-10 left-1/2 -translate-x-1/2 z-95 flex items-center gap-1 px-2 py-1.5 rounded-xl border border-white/8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all duration-200 hover:border-white/12 hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.9)]"
+        className="fixed bottom-10 left-1/2 -translate-x-1/2 z-95 flex items-center gap-1 px-2 py-1.5 rounded-xl border border-white/8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all duration-200 hover:border-white/12 hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.9)] max-w-[calc(100vw-1.5rem)] overflow-x-auto scrollbar-hide"
         style={{
           background: 'linear-gradient(180deg, rgba(20,25,35,0.82) 0%, rgba(10,12,18,0.92) 100%)',
           backdropFilter: 'blur(20px)',

@@ -69,7 +69,7 @@ export function CoordinateTelemetryCard() {
 
   return (
     <div
-      className="fixed bottom-24 left-6 z-50 w-80 rounded-lg border border-white/8 p-4 shadow-2xl backdrop-blur-md"
+      className="fixed bottom-24 left-6 z-50 w-80 max-md:left-3 max-md:right-3 max-md:w-auto rounded-lg border border-white/8 p-4 shadow-2xl backdrop-blur-md max-h-[40vh] overflow-y-auto"
       style={{
         background: 'rgba(5, 8, 16, 0.85)',
       }}

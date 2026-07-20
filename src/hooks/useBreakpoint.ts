@@ -26,6 +26,7 @@ const BREAKPOINTS: Record<Breakpoint, number> = {
 
 export interface BreakpointState {
   width: number;
+  isPhone: boolean;       // < 640px
   isMobile: boolean;      // < 768px
   isTablet: boolean;      // >= 768px && < 1024px
   isDesktop: boolean;     // >= 1024px
@@ -49,6 +50,7 @@ function getState(width: number): BreakpointState {
   const current = getCurrentBreakpoint(width);
   return {
     width,
+    isPhone: width < 640,
     isMobile: width < 768,
     isTablet: width >= 768 && width < 1024,
     isDesktop: width >= 1024,
@@ -64,6 +66,7 @@ function getState(width: number): BreakpointState {
 /** SSR-safe default — assume desktop during SSR */
 export const defaultBreakpoint: BreakpointState = {
   width: 1920,
+  isPhone: false,
   isMobile: false,
   isTablet: false,
   isDesktop: true,

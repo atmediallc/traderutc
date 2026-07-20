@@ -26,7 +26,7 @@ export function MarketCard() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="absolute right-6 top-16 z-40 w-80 max-w-[calc(100vw-3rem)] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] border border-white/10 font-sans"
+          className="absolute right-6 top-16 z-40 w-80 max-w-[min(20rem,calc(100vw-2rem))] max-md:left-3 max-md:right-3 max-md:w-auto rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] border border-white/10 font-sans"
           style={{
             background: 'linear-gradient(135deg, rgba(15,20,30,0.85) 0%, rgba(5,7,12,0.95) 100%)',
             backdropFilter: 'blur(20px)',
