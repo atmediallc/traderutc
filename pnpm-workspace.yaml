@@ -2,14 +2,16 @@ packages:
   - .
 
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
   sharp: true
   unrs-resolver: true
-  workerd: set this to true or false
+  workerd: true
 
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver
+  - esbuild
+  - workerd
 
 updateConfig:
   ignoreDependencies:
