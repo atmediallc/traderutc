@@ -146,7 +146,13 @@ export function AppShell({ children }: AppShellProps) {
           <ControlButton
             icon={<RotateCcw className="w-4 h-4" />}
             label={autoRotate ? 'Stop' : 'Rotate'}
-            onClick={() => setAutoRotate(!autoRotate)}
+            onClick={() => {
+              if (autoRotate) {
+                setAutoRotate(false);
+              } else {
+                setAutoRotate(true);
+              }
+            }}
             active={autoRotate}
             variant="emerald"
           />
