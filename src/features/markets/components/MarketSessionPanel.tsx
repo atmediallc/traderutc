@@ -1,93 +1,248 @@
 /**
  * MarketSessionPanel Component
  *
- * A professional, high-density Bloomberg-style table displaying all markets,
- * their current local time, status, schedule, and time countdowns.
+ * Professional Bloomberg-inspired market sessions dashboard.
+ * Displays all global markets grouped by region with real-time status,
+ * local time, schedule, and animated countdown progress bars.
+ *
+ * Layout:
+ * ┌──────────────────────────────────────────────────┐
+ * │ 🔴 MARKET SESSIONS            [search] [filter] ✕│
+ * │ ● 6 OPEN  ● 4 CLOSED  ● 2 PRE  ● 1 AH         │
+ * ├──────────────────────────────────────────────────┤
+ * │  AMERICAS (5)                          [▾]       │
+ * │  🟢 NYSE · NASDAQ  OPEN  14:32  ████░░░ 3h      │
+ * │  ...                                              │
+ * │  EUROPE (4)                                       │
+ * │  ...                                              │
+ * └──────────────────────────────────────────────────┘
  */
 'use client';
 
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Search, Activity } from 'lucide-react';
+import { X, Search, Activity, ChevronDown, ChevronRight } from 'lucide-react';
 import { useLayoutStore } from '@/features/layout/stores/layout.store';
-import { useMarketsStore } from '../stores/markets.store';
 import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { getStatusColor } from '../hooks/useMarketStatus';
-import { marketIntelligenceEngine, Market } from '@/engines';
+import { marketIntelligenceEngine, Market, MARKETS } from '@/engines';
+import { cn } from '@/lib/utils';
+import type { MarketStatus } from '@/engines/shared/engine.types';
 
+/* ─── Region Definitions ─── */
+const REGIONS = [
+  {
+    id: 'americas',
+    label: 'Americas',
+    markets: ['NEW_YORK', 'CHICAGO', 'TORONTO', 'SAO_PAULO', 'MEXICO_CITY'],
+  },
+  {
+    id: 'europe',
+    label: 'Europe',
+    markets: ['LONDON', 'FRANKFURT', 'ZURICH', 'PARIS', 'AMSTERDAM', 'MADRID', 'MILAN'],
+  },
+  {
+    id: 'middle-east',
+    label: 'Middle East & Africa',
+    markets: ['DUBAI', 'JOHANNESBURG'],
+  },
+  {
+    id: 'asia-pacific',
+    label: 'Asia-Pacific',
+    markets: ['MUMBAI', 'SINGAPORE', 'HONG_KONG', 'SHANGHAI', 'TOKYO', 'SEOUL', 'SYDNEY'],
+  },
+];
+
+type FilterStatus = 'all' | 'OPEN' | 'CLOSED' | 'PRE_MARKET' | 'AFTER_HOURS';
+
+/* ─── Main Component ─── */
 export function MarketSessionPanel() {
-  const isOpen = useLayoutStore((s) => s.sessionPanelOpen);
-  const toggle = useLayoutStore((s) => s.toggleSessionPanel);
-  const selectMarket = useMarketsStore((s) => s.selectMarket);
-  const searchQuery = useMarketsStore((s) => s.searchQuery);
-  const setSearchQuery = useMarketsStore((s) => s.setSearchQuery);
-  const filteredMarkets = useMarketsStore((s) => s.filteredMarkets);
+  const { sessionPanelOpen, toggleSessionPanel } = useLayoutStore();
   const utcMs = useUTCStore((s) => s.utcMs);
+
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
+  const [collapsedRegions, setCollapsedRegions] = useState<Set<string>>(new Set());
+
+  /* Compute status for all markets */
+  const marketStatuses = useMemo(() => {
+    return MARKETS.map((m) => ({
+      market: m,
+      status: marketIntelligenceEngine.computeMarketStatus(m.id, utcMs),
+    }));
+  }, [utcMs]);
+
+  /* Filter by search + status */
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    return marketStatuses.filter(({ market, status }) => {
+      const matchesSearch =
+        !q ||
+        market.city.toLowerCase().includes(q) ||
+        market.country.toLowerCase().includes(q) ||
+        market.exchanges.some((e) => e.toLowerCase().includes(q));
+      const matchesStatus = statusFilter === 'all' || status.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [marketStatuses, search, statusFilter]);
+
+  /* Summary counts */
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { OPEN: 0, CLOSED: 0, PRE_MARKET: 0, AFTER_HOURS: 0 };
+    marketStatuses.forEach(({ status }) => {
+      if (status.status in c) c[status.status]++;
+    });
+    return c;
+  }, [marketStatuses]);
+
+  const toggleRegion = (id: string) => {
+    setCollapsedRegions((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {sessionPanelOpen && (
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2 }}
-          className="absolute left-6 top-16 bottom-24 z-40 w-160 max-w-[calc(100vw-3rem)] border border-white/10 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col font-sans"
+          initial={{ opacity: 0, y: -12, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -12, scale: 0.98 }}
+          transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+          className="absolute top-12 left-1/2 -translate-x-1/2 z-50 w-240 max-h-[72vh] rounded-xl border border-white/10 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col"
           style={{
-            background: 'linear-gradient(135deg, rgba(15,20,30,0.8) 0%, rgba(5,7,12,0.95) 100%)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            background: 'linear-gradient(180deg, rgba(10,12,18,0.92) 0%, rgba(6,8,14,0.96) 100%)',
+            backdropFilter: 'blur(24px)',
           }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/2">
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-emerald-400" />
-              <h2 className="text-xs font-bold tracking-widest text-white/95 uppercase">
-                GLOBAL_MARKET_MONITOR // STATUS_GRID
-              </h2>
+          {/* ─── Header ─── */}
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <Activity className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-[10px] font-bold text-white/70 uppercase tracking-[0.15em]">
+                Market Sessions
+              </span>
             </div>
+
             <div className="flex items-center gap-2">
+              {/* Search */}
               <div className="relative">
-                <Search className="absolute left-2.5 top-1.5 w-3.5 h-3.5 text-white/30" />
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30" />
                 <input
                   type="text"
-                  placeholder="Filter sessions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-black/40 border border-white/8 rounded pl-8 pr-3 py-1 text-xs font-mono text-white/80 placeholder:text-white/30 focus:outline-none focus:border-emerald-500/50 transition-colors w-48"
+                  placeholder="Search markets..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-44 rounded-md border border-white/8 bg-white/5 pl-7 pr-2 py-1 text-[10px] text-white/80 placeholder-white/25 outline-none focus:border-emerald-500/30 transition-colors"
                 />
               </div>
+
               <button
-                onClick={toggle}
-                className="p-1 rounded text-white/40 hover:bg-white/5 hover:text-white transition-colors"
+                onClick={toggleSessionPanel}
+                className="text-white/30 hover:text-white/70 transition-colors p-1"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Table Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr] gap-4 px-4 py-2 border-b border-white/10 bg-black/40 text-[9px] font-bold text-white/40 uppercase tracking-wider">
-            <div>Market (Country / Code)</div>
-            <div>Local Time</div>
-            <div>Status</div>
-            <div>Hours</div>
-            <div>Time Countdown / Event</div>
+          {/* ─── Summary Bar ─── */}
+          <div className="flex items-center gap-4 px-4 py-2 border-b border-white/5 shrink-0">
+            <StatusPip label="OPEN" count={counts.OPEN} />
+            <StatusPip label="CLOSED" count={counts.CLOSED} />
+            <StatusPip label="PRE" count={counts.PRE_MARKET} />
+            <StatusPip label="AH" count={counts.AFTER_HOURS} />
+
+            <div className="flex-1" />
+
+            {/* Filter chips */}
+            {(['all', 'OPEN', 'CLOSED', 'PRE_MARKET', 'AFTER_HOURS'] as FilterStatus[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setStatusFilter(f)}
+                className={cn(
+                  'px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border transition-all duration-150',
+                  statusFilter === f
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                    : 'border-white/8 bg-white/3 text-white/30 hover:text-white/50'
+                )}
+              >
+                {f === 'all' ? 'All' : f === 'AFTER_HOURS' ? 'AH' : f.replace('_', ' ')}
+              </button>
+            ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto scrollbar-hide bg-black/15">
-            {/* Search results */}
-            {filteredMarkets.map((market) => (
-              <MarketRow
-                key={market.id}
-                market={market}
-                utcMs={utcMs}
-                onClick={() => selectMarket(market.id)}
-              />
-            ))}
-            {filteredMarkets.length === 0 && (
-              <div className="p-8 text-center text-xs text-white/30">
-                No matching telemetry channels for &quot;{searchQuery}&quot;
+          {/* ─── Column Headers ─── */}
+          <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] gap-2 px-4 py-1.5 text-[8px] font-bold text-white/20 uppercase tracking-[0.12em] border-b border-white/5 shrink-0">
+            <div>Market</div>
+            <div>Status</div>
+            <div>Local</div>
+            <div>Schedule</div>
+            <div>Countdown</div>
+            <div className="text-right">UTC Offset</div>
+          </div>
+
+          {/* ─── Market Groups ─── */}
+          <div className="overflow-y-auto flex-1 min-h-0">
+            {REGIONS.map((region) => {
+              const regionMarkets = filtered.filter((f) =>
+                region.markets.includes(f.market.id)
+              );
+              if (regionMarkets.length === 0) return null;
+              const isCollapsed = collapsedRegions.has(region.id);
+
+              return (
+                <div key={region.id}>
+                  {/* Region Header */}
+                  <button
+                    onClick={() => toggleRegion(region.id)}
+                    className="w-full flex items-center gap-2 px-4 py-1.5 text-[9px] font-bold text-white/40 uppercase tracking-widest border-b border-white/5 hover:bg-white/2 transition-colors"
+                  >
+                    {isCollapsed ? (
+                      <ChevronRight className="w-3 h-3" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3" />
+                    )}
+                    <span>{region.label}</span>
+                    <span className="text-white/15">({regionMarkets.length})</span>
+                    <div className="flex-1" />
+                    {/* Open count in region */}
+                    {regionMarkets.filter((r) => r.status.status === 'OPEN').length > 0 && (
+                      <span className="text-emerald-500/60">
+                        {regionMarkets.filter((r) => r.status.status === 'OPEN').length} open
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Market Rows */}
+                  <AnimatePresence initial={false}>
+                    {!isCollapsed && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {regionMarkets.map(({ market, status }) => (
+                          <MarketRow
+                            key={market.id}
+                            market={market}
+                            status={status}
+                          />
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+
+            {filtered.length === 0 && (
+              <div className="flex items-center justify-center py-8 text-[10px] text-white/20">
+                No markets match filters
               </div>
             )}
           </div>
@@ -97,48 +252,126 @@ export function MarketSessionPanel() {
   );
 }
 
-function MarketRow({ market, utcMs, onClick }: { market: Market; utcMs: number; onClick: () => void }) {
-  const status = marketIntelligenceEngine.computeMarketStatus(market.id, utcMs);
+/* ─── Sub-components ─── */
+
+function StatusPip({ label, count }: { label: string; count: number }) {
+  const color = getStatusColor(label === 'PRE' ? 'PRE_MARKET' : label === 'AH' ? 'AFTER_HOURS' : label);
+  return (
+    <div className="flex items-center gap-1.5">
+      <span
+        className={cn(
+          'w-1.5 h-1.5 rounded-full',
+          count > 0 && 'animate-pulse'
+        )}
+        style={{ backgroundColor: color }}
+      />
+      <span className="text-[9px] font-bold text-white/50 uppercase tracking-wider">{label}</span>
+      <span className="text-[9px] font-mono text-white/30">{count}</span>
+    </div>
+  );
+}
+
+function MarketRow({ market, status }: { market: Market; status: { status: MarketStatus; localTime: string; utcOffset: number; nextChangeText: string | null; msUntilNextChange: number | null } }) {
   const statusColor = getStatusColor(status.status);
+  const isOpen = status.status === 'OPEN';
+  const progress = computeSessionProgress(market, status);
 
   return (
-    <div
-      onClick={onClick}
-      className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr] gap-4 px-4 py-2.5 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group items-center"
-    >
-      <div className="flex flex-col">
-        <span className="text-xs font-semibold text-white/90 group-hover:text-emerald-400 transition-colors">
-          {market.city.toUpperCase()}
-        </span>
-        <span className="text-[9px] text-white/30 uppercase truncate">
-          {market.exchanges.join(', ')}{' // '}{market.country}
-        </span>
+    <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] gap-2 px-4 py-2.5 border-b border-white/3 hover:bg-white/2 transition-colors items-center group">
+      {/* Market Name */}
+      <div className="flex items-center gap-2 min-w-0">
+        {isOpen && (
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_rgba(34,197,94,0.4)]" />
+        )}
+        {!isOpen && (
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: `${statusColor}40` }} />
+        )}
+        <div className="min-w-0">
+          <div className="text-[11px] font-semibold text-white/85 truncate">
+            {market.city}
+          </div>
+          <div className="text-[8px] text-white/25 truncate">
+            {market.exchanges.join(' · ')}
+          </div>
+        </div>
       </div>
 
-      <div suppressHydrationWarning className="text-xs font-bold text-white/80">
-        {status.localTime.slice(0, 5)}
-      </div>
-
+      {/* Status Badge */}
       <div>
         <span
-          className="px-2 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase border"
+          className={cn(
+            'inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase border',
+            isOpen && 'shadow-[0_0_8px_rgba(34,197,94,0.15)]'
+          )}
           style={{
             color: statusColor,
-            backgroundColor: `${statusColor}10`,
-            borderColor: `${statusColor}25`,
+            backgroundColor: `${statusColor}0D`,
+            borderColor: `${statusColor}20`,
           }}
         >
           {status.status.replace('_', ' ')}
         </span>
       </div>
 
-      <div className="text-[10px] text-white/60">
-        {market.openLocal} - {market.closeLocal}
+      {/* Local Time */}
+      <div
+        suppressHydrationWarning
+        className="text-[11px] font-mono font-bold text-white/75 tabular-nums"
+      >
+        {status.localTime.slice(0, 5)}
       </div>
 
-      <div className="text-[10px] text-white/70">
-        {status.nextChangeText || '-'}
+      {/* Schedule */}
+      <div className="text-[9px] text-white/35 font-mono tabular-nums">
+        {market.openLocal}–{market.closeLocal}
+      </div>
+
+      {/* Countdown Bar */}
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-0.75 bg-white/5 rounded-full overflow-hidden">
+          <motion.div
+            className="h-full rounded-full"
+            style={{ backgroundColor: statusColor }}
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          />
+        </div>
+        <span className="text-[8px] text-white/30 whitespace-nowrap min-w-15 text-right">
+          {status.nextChangeText || '—'}
+        </span>
+      </div>
+
+      {/* UTC Offset */}
+      <div className="text-right">
+        <span className="text-[9px] font-mono text-white/30 tabular-nums">
+          UTC{status.utcOffset >= 0 ? '+' : ''}{status.utcOffset}
+        </span>
       </div>
     </div>
   );
+}
+
+/* ─── Helpers ─── */
+
+/**
+ * Compute how far through the current trading session we are (0-100%).
+ * If market is closed, returns 0.
+ */
+function computeSessionProgress(
+  market: Market,
+  status: { status: MarketStatus; msUntilNextChange: number | null }
+): number {
+  if (status.status !== 'OPEN' && status.status !== 'AFTER_HOURS') return 0;
+
+  // Approximate session duration in ms (rough: open to close)
+  // Use msUntilNextChange as remaining time, estimate total session as ~6.5h for regular
+  const sessionDurationMs = status.status === 'AFTER_HOURS'
+    ? 4 * 3600 * 1000  // ~4h after-hours
+    : 6.5 * 3600 * 1000; // ~6.5h regular session
+
+  const remaining = status.msUntilNextChange ?? 0;
+  const elapsed = Math.max(0, sessionDurationMs - remaining);
+
+  return Math.min(100, Math.max(0, (elapsed / sessionDurationMs) * 100));
 }
