@@ -194,7 +194,7 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
 
     ctx.beginPath();
     ctx.ellipse(0, 0, nrX, nrY, 0, 0, Math.PI * 2);
-    ctx.fillStyle = nebulaGrad;
+    ctx.arc(0, 0, nrX, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
