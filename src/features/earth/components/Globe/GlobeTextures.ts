@@ -45,7 +45,7 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
   // Deep space gradient background
   const gradient = ctx.createRadialGradient(
     size / 2, size / 2, 0,
-    size / 2, size / 2, size * 0.8
+    size / 2, size / 2, size * 0.7
   );
   gradient.addColorStop(0, '#040712'); // Richer, slightly brighter center
   gradient.addColorStop(0.4, '#02040a');
