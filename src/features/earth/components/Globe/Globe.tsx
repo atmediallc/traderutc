@@ -298,15 +298,6 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
     return () => observer.disconnect();
   }, []);
 
-  const handleReset = () => {
-    setIsManuallyOverridden(false);
-    if (chartRef.current && !disposedRef.current) {
-      const offsetMinutes = new Date().getTimezoneOffset();
-      const localLongitude = (-offsetMinutes / 60) * 15;
-      rotateGlobeTo(chartRef.current, 25, localLongitude);
-    }
-  };
-
   return (
     <div
       className={className}
@@ -325,40 +316,6 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
         }}
         data-globe-ready={isReady}
       />
-      {isManuallyOverridden && (
-        <button
-          onClick={handleReset}
-          style={{
-            position: 'absolute',
-            bottom: '12px',
-            right: '12px',
-            background: 'rgba(9, 25, 36, 0.85)',
-            border: '1px solid rgba(0, 242, 254, 0.4)',
-            color: '#00f2fe',
-            fontFamily: 'monospace',
-            fontSize: '10px',
-            padding: '4px 8px',
-            cursor: 'pointer',
-            zIndex: 100,
-            borderRadius: '2px',
-            letterSpacing: '0.1em',
-            boxShadow: '0 0 10px rgba(0, 242, 254, 0.15)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(0, 242, 254, 0.15)';
-            e.currentTarget.style.borderColor = '#00f2fe';
-            e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.3)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(9, 25, 36, 0.85)';
-            e.currentTarget.style.borderColor = 'rgba(0, 242, 254, 0.4)';
-            e.currentTarget.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.15)';
-          }}
-        >
-          RESET
-        </button>
-      )}
     </div>
   );
 });
