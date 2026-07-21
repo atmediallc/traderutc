@@ -45,7 +45,7 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
   // Deep space gradient background
   const gradient = ctx.createRadialGradient(
     size / 2, size / 2, 0,
-    size / 2, size / 2, size * 0.7
+    size / 2, size / 2, size * 0.8
   );
   gradient.addColorStop(0, '#040712'); // Richer, slightly brighter center
   gradient.addColorStop(0.4, '#02040a');
@@ -79,23 +79,23 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
   }
 
   // Draw main stars with varying sizes and brightness
-  const starCount = 2000;
+  const starCount = 3000;
 
   for (let i = 0; i < starCount; i++) {
     const x = Math.random() * size;
     const y = Math.random() * size;
     const radiusRoll = Math.random();
 
-    // Improved distribution of star sizes
+    // Improved distribution of star sizes, keeping them small and realistic
     let r: number;
     let isBrightStar = false;
 
-    if (radiusRoll < 0.88) {
-      r = 0.4 + Math.random() * 0.6;
+    if (radiusRoll < 0.90) {
+      r = 0.2 + Math.random() * 0.3; // Tiny stars (majority)
     } else if (radiusRoll < 0.98) {
-      r = 1.0 + Math.random() * 1.5;
+      r = 0.5 + Math.random() * 0.4; // Small stars
     } else {
-      r = 2.0 + Math.random() * 1.5;
+      r = 0.9 + Math.random() * 0.5; // "Large" stars (still small)
       isBrightStar = true;
     }
 
@@ -134,37 +134,12 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
     ctx.fillStyle = color;
     ctx.fill();
 
-    // Add glow and flares to brighter stars
+    // Add soft glow to brighter stars only
     if (isBrightStar) {
-      // Intense inner glow
       ctx.beginPath();
       ctx.arc(x, y, r * 2.5, 0, Math.PI * 2);
       const glowGrad = ctx.createRadialGradient(x, y, 0, x, y, r * 2.5);
-      glowGrad.addColorStop(0, `rgba(${rC}, ${gC}, ${bC}, 0.6)`);
-      glowGrad.addColorStop(1, `rgba(${rC}, ${gC}, ${bC}, 0)`);
-      ctx.fillStyle = glowGrad;
-      ctx.fill();
-
-      // Star flare (cross shape)
-      const flareSize = r * (4 + Math.random() * 4);
-      const flareOpacity = 0.3 + Math.random() * 0.3;
-      ctx.fillStyle = `rgba(${rC}, ${gC}, ${bC}, ${flareOpacity})`;
-
-      // Horizontal flare
-      ctx.beginPath();
-      ctx.ellipse(x, y, flareSize, r * 0.3, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Vertical flare
-      ctx.beginPath();
-      ctx.ellipse(x, y, r * 0.3, flareSize, 0, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (r > 1.2) {
-      // Soft glow for medium stars
-      ctx.beginPath();
-      ctx.arc(x, y, r * 3, 0, Math.PI * 2);
-      const glowGrad = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
-      glowGrad.addColorStop(0, `rgba(${rC}, ${gC}, ${bC}, 0.2)`);
+      glowGrad.addColorStop(0, `rgba(${rC}, ${gC}, ${bC}, 0.3)`);
       glowGrad.addColorStop(1, `rgba(${rC}, ${gC}, ${bC}, 0)`);
       ctx.fillStyle = glowGrad;
       ctx.fill();
@@ -194,7 +169,7 @@ function generateStarfieldCanvas(size: number = 2048): HTMLCanvasElement {
 
     ctx.beginPath();
     ctx.ellipse(0, 0, nrX, nrY, 0, 0, Math.PI * 2);
-    ctx.arc(0, 0, nrX, 0, Math.PI * 2);
+    ctx.fillStyle = nebulaGrad;
     ctx.fill();
     ctx.restore();
   }
