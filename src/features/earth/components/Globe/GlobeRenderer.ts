@@ -141,7 +141,7 @@ export function buildGlobeOption(
         },
       },
       temporalSuperSampling: {
-        enable: true,
+        enable: false,
       },
     },
     series,

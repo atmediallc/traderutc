@@ -209,8 +209,6 @@ export function getGlobeTextures(): GlobeTextureSet {
 export function createGlobeTextureOptions(textures: GlobeTextureSet) {
   return {
     baseTexture: textures.earth,
-    heightTexture: textures.bump,
-    displacementScale: 0.02,
     environment: textures.environment,
     specularIntensity: 0.0,
     shading: 'realistic' as const,
