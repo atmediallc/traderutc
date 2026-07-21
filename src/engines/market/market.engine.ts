@@ -16,6 +16,7 @@ export const MARKETS: Market[] = [
     afterHoursCloseLocal: '20:00',
     currency: 'USD',
     majorIndexes: ['S&P 500', 'DJIA', 'Nasdaq Composite'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'CHICAGO',
@@ -28,6 +29,7 @@ export const MARKETS: Market[] = [
     closeLocal: '15:00',
     currency: 'USD',
     majorIndexes: ['S&P 500 Futures', 'VIX'],
+    assetClasses: ['Futures'],
   },
   {
     id: 'TORONTO',
@@ -42,6 +44,7 @@ export const MARKETS: Market[] = [
     afterHoursCloseLocal: '17:00',
     currency: 'CAD',
     majorIndexes: ['S&P/TSX Composite'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'LONDON',
@@ -54,6 +57,7 @@ export const MARKETS: Market[] = [
     closeLocal: '16:30',
     currency: 'GBP',
     majorIndexes: ['FTSE 100', 'FTSE 250'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'FRANKFURT',
@@ -68,6 +72,7 @@ export const MARKETS: Market[] = [
     afterHoursCloseLocal: '22:00',
     currency: 'EUR',
     majorIndexes: ['DAX 40'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'ZURICH',
@@ -80,6 +85,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:30',
     currency: 'CHF',
     majorIndexes: ['SMI'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'PARIS',
@@ -92,6 +98,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:30',
     currency: 'EUR',
     majorIndexes: ['CAC 40'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'AMSTERDAM',
@@ -104,6 +111,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:30',
     currency: 'EUR',
     majorIndexes: ['AEX'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'MADRID',
@@ -116,6 +124,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:30',
     currency: 'EUR',
     majorIndexes: ['IBEX 35'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'MILAN',
@@ -128,6 +137,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:30',
     currency: 'EUR',
     majorIndexes: ['FTSE MIB'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'DUBAI',
@@ -140,6 +150,7 @@ export const MARKETS: Market[] = [
     closeLocal: '14:00',
     currency: 'AED',
     majorIndexes: ['DFM General Index'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'MUMBAI',
@@ -153,6 +164,7 @@ export const MARKETS: Market[] = [
     preMarketOpenLocal: '09:00',
     currency: 'INR',
     majorIndexes: ['NIFTY 50', 'BSE SENSEX'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'SINGAPORE',
@@ -165,6 +177,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:00',
     currency: 'SGD',
     majorIndexes: ['STI'],
+    assetClasses: ['Stocks'],
     hasLunchBreak: true,
     lunchStartLocal: '12:00',
     lunchEndLocal: '13:00',
@@ -180,6 +193,7 @@ export const MARKETS: Market[] = [
     closeLocal: '16:00',
     currency: 'HKD',
     majorIndexes: ['Hang Seng'],
+    assetClasses: ['Stocks'],
     hasLunchBreak: true,
     lunchStartLocal: '12:00',
     lunchEndLocal: '13:00',
@@ -195,6 +209,7 @@ export const MARKETS: Market[] = [
     closeLocal: '15:00',
     currency: 'CNY',
     majorIndexes: ['SSE Composite'],
+    assetClasses: ['Stocks'],
     hasLunchBreak: true,
     lunchStartLocal: '11:30',
     lunchEndLocal: '13:00',
@@ -210,6 +225,7 @@ export const MARKETS: Market[] = [
     closeLocal: '15:00',
     currency: 'JPY',
     majorIndexes: ['Nikkei 225', 'TOPIX'],
+    assetClasses: ['Stocks'],
     hasLunchBreak: true,
     lunchStartLocal: '11:30',
     lunchEndLocal: '12:30',
@@ -225,6 +241,7 @@ export const MARKETS: Market[] = [
     closeLocal: '15:30',
     currency: 'KRW',
     majorIndexes: ['KOSPI'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'SYDNEY',
@@ -238,6 +255,7 @@ export const MARKETS: Market[] = [
     preMarketOpenLocal: '07:00',
     currency: 'AUD',
     majorIndexes: ['S&P/ASX 200'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'SAO_PAULO',
@@ -252,6 +270,7 @@ export const MARKETS: Market[] = [
     afterHoursCloseLocal: '17:30',
     currency: 'BRL',
     majorIndexes: ['Ibovespa'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'MEXICO_CITY',
@@ -264,6 +283,7 @@ export const MARKETS: Market[] = [
     closeLocal: '15:00',
     currency: 'MXN',
     majorIndexes: ['S&P/BMV IPC'],
+    assetClasses: ['Stocks'],
   },
   {
     id: 'JOHANNESBURG',
@@ -276,6 +296,7 @@ export const MARKETS: Market[] = [
     closeLocal: '17:00',
     currency: 'ZAR',
     majorIndexes: ['FTSE/JSE Top 40'],
+    assetClasses: ['Stocks'],
   }
 ];
 

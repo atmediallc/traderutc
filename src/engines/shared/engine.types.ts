@@ -2,6 +2,9 @@
  * Core Engine Shared Type Definitions
  */
 
+/** Asset Class types */
+export type AssetClass = 'Stocks' | 'Futures' | 'Crypto' | 'Forex';
+
 /** Possible trading states for a market */
 export type MarketStatus = 
   | 'OPEN'
@@ -17,6 +20,7 @@ export interface Market {
   id: string;
   city: string;
   exchanges: string[];
+  assetClasses?: AssetClass[];
   timezone: string;
   country: string;
   coordinates: [number, number];
