@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { marketEngine, Market } from '@/engines';
+import { marketEngine, Market, AssetClass } from '@/engines';
 
-type AssetClass = 'All' | 'Stocks' | 'Futures' | 'Crypto' | 'Forex';
+export type MarketFilter = 'All' | AssetClass;
 
 interface MarketsState {
   /** Currently selected market ID (for detail card/focus) */
@@ -9,7 +9,7 @@ interface MarketsState {
   /** Search query string */
   searchQuery: string;
   /** Active asset class filter */
-  activeFilter: AssetClass;
+  activeFilter: MarketFilter;
   /** Filtered list of markets based on search and filters */
   filteredMarkets: Market[];
 }
@@ -17,7 +17,7 @@ interface MarketsState {
 interface MarketsActions {
   selectMarket: (marketId: string | null) => void;
   setSearchQuery: (query: string) => void;
-  setActiveFilter: (filter: AssetClass) => void;
+  setActiveFilter: (filter: MarketFilter) => void;
 }
 
 export const useMarketsStore = create<MarketsState & MarketsActions>((set, get) => ({
@@ -31,8 +31,11 @@ export const useMarketsStore = create<MarketsState & MarketsActions>((set, get) 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
     // Re-filter
-    const results = marketEngine.searchMarkets(query);
-    // TODO: Apply activeFilter logic here if we add asset classes to Market data
+    let results = marketEngine.searchMarkets(query);
+    const activeFilter = get().activeFilter;
+    if (activeFilter !== 'All') {
+      results = results.filter((m) => (m.assetClasses || ['Stocks']).includes(activeFilter));
+    }
     set({ filteredMarkets: results });
   },
 
@@ -40,8 +43,10 @@ export const useMarketsStore = create<MarketsState & MarketsActions>((set, get) 
     set({ activeFilter: filter });
     // Re-filter
     const state = get();
-    const results = marketEngine.searchMarkets(state.searchQuery);
-    // TODO: Apply activeFilter logic here
+    let results = marketEngine.searchMarkets(state.searchQuery);
+    if (filter !== 'All') {
+      results = results.filter((m) => (m.assetClasses || ['Stocks']).includes(filter));
+    }
     set({ filteredMarkets: results });
   },
 }));
