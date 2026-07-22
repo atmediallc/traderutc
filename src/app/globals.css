@@ -252,3 +252,128 @@ body::before {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
+
+/* ========================================
+ * Terminal Header Design System
+ * Unified container primitives for header
+ * ======================================== */
+
+/* --- Terminal Panel Tokens --- */
+:root {
+  --terminal-panel-bg: rgba(10, 16, 24, 0.82);
+  --terminal-border: rgba(0, 255, 210, 0.12);
+  --terminal-border-hover: rgba(0, 255, 210, 0.30);
+  --terminal-radius: 14px;
+  --terminal-padding-x: 16px;
+  --terminal-padding-y: 10px;
+  --terminal-gap: 12px;
+  --terminal-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 8px 20px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(0, 255, 210, 0.05);
+  --terminal-shadow-hover:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 8px 24px rgba(0, 0, 0, 0.55),
+    0 0 18px rgba(0, 255, 210, 0.08);
+  --terminal-height: 58px;
+
+  /* Label */
+  --terminal-label-size: 10px;
+  --terminal-label-tracking: 0.14em;
+  --terminal-label-color: rgba(0, 255, 210, 0.55);
+
+  /* Value */
+  --terminal-value-size: 13px;
+
+  /* Clock */
+  --terminal-clock-size: clamp(30px, 2.6vw, 42px);
+  --terminal-clock-size-lg: clamp(38px, 2.8vw, 42px);
+  --terminal-clock-letter-spacing: 3px;
+
+  /* Ambient glow line */
+  --terminal-glow-line: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 255, 210, 0.30) 35%,
+    rgba(94, 230, 255, 0.25) 65%,
+    transparent
+  );
+}
+
+/* --- Terminal Panel Base --- */
+.terminal-panel {
+  display: flex;
+  align-items: center;
+  height: var(--terminal-height);
+  padding: var(--terminal-padding-y) var(--terminal-padding-x);
+  border-radius: var(--terminal-radius);
+  background: var(--terminal-panel-bg);
+  border: 1px solid var(--terminal-border);
+  box-shadow: var(--terminal-shadow);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.terminal-panel:hover {
+  border-color: var(--terminal-border-hover);
+  box-shadow: var(--terminal-shadow-hover);
+}
+
+/* --- Terminal Label --- */
+.terminal-label {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--terminal-label-size);
+  font-weight: 600;
+  letter-spacing: var(--terminal-label-tracking);
+  text-transform: uppercase;
+  color: var(--terminal-label-color);
+  line-height: 1;
+  user-select: none;
+}
+
+/* --- Terminal Value --- */
+.terminal-value {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: var(--terminal-value-size);
+  font-weight: 700;
+  color: white;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+/* --- Terminal Clock --- */
+.terminal-clock {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: var(--terminal-clock-size);
+  font-weight: 700;
+  letter-spacing: var(--terminal-clock-letter-spacing);
+  line-height: 1;
+  color: white;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 20px rgba(0, 229, 168, 0.30);
+}
+
+@media (min-width: 1024px) {
+  .terminal-clock {
+    font-size: var(--terminal-clock-size-lg);
+  }
+}
+
+/* --- Ambient Glow Line --- */
+.terminal-glow-line {
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: var(--terminal-glow-line);
+  pointer-events: none;
+}
+
+/* --- Utility: separator --- */
+.terminal-separator {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.12), transparent);
+  flex-shrink: 0;
+}
