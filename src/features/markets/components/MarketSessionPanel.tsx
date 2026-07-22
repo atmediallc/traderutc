@@ -112,45 +112,45 @@ export function MarketSessionPanel() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -12, scale: 0.98 }}
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-          className="absolute top-[98px] left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-[60rem] max-h-[72vh] max-md:max-h-[85vh] rounded-xl border border-white/10 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-y-auto flex flex-col"
+          className="absolute top-[124px] left-1/2 -translate-x-1/2 z-50 w-[92vw] max-w-[64rem] max-h-[74vh] max-md:max-h-[85vh] rounded-2xl border border-white/12 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-y-auto flex flex-col"
           style={{
-            background: 'linear-gradient(180deg, rgba(10,12,18,0.92) 0%, rgba(6,8,14,0.96) 100%)',
-            backdropFilter: 'blur(24px)',
+            background: 'linear-gradient(180deg, rgba(10,12,18,0.95) 0%, rgba(6,8,14,0.98) 100%)',
+            backdropFilter: 'blur(32px)',
           }}
         >
           {/* ─── Header ─── */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8 shrink-0">
-            <div className="flex items-center gap-2.5">
-              <Activity className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[10px] font-bold text-white/70 uppercase tracking-[0.15em]">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <Activity className="w-4 h-4 text-[#00E5A8]" />
+              <span className="text-xs font-bold text-white uppercase tracking-wider">
                 Market Sessions
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
                 <input
                   type="text"
                   placeholder="Search markets..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-44 rounded-md border border-white/8 bg-white/5 pl-7 pr-2 py-1 text-[10px] text-white/80 placeholder-white/25 outline-none focus:border-emerald-500/30 transition-colors"
+                  className="w-56 rounded-lg border border-white/10 bg-white/5 pl-8 pr-3 py-1.5 text-xs text-white placeholder-white/30 outline-none focus:border-[#00E5A8]/50 transition-colors"
                 />
               </div>
 
               <button
                 onClick={toggleSessionPanel}
-                className="text-white/30 hover:text-white/70 transition-colors p-1"
+                className="text-white/40 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/5 cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* ─── Summary Bar ─── */}
-          <div className="flex items-center gap-4 px-4 py-2 border-b border-white/5 shrink-0">
+          <div className="flex items-center gap-5 px-5 py-2.5 border-b border-white/8 shrink-0">
             <StatusPip label="OPEN" count={counts.OPEN} />
             <StatusPip label="CLOSED" count={counts.CLOSED} />
             <StatusPip label="PRE" count={counts.PRE_MARKET} />
@@ -164,10 +164,10 @@ export function MarketSessionPanel() {
                 key={f}
                 onClick={() => setStatusFilter(f)}
                 className={cn(
-                  'px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border transition-all duration-150',
+                  'px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider border transition-all duration-150 cursor-pointer',
                   statusFilter === f
-                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                    : 'border-white/8 bg-white/3 text-white/30 hover:text-white/50'
+                    ? 'border-[#00E5A8]/40 bg-[#00E5A8]/15 text-[#00E5A8]'
+                    : 'border-white/10 bg-white/5 text-white/40 hover:text-white/80'
                 )}
               >
                 {f === 'all' ? 'All' : f === 'AFTER_HOURS' ? 'AH' : f.replace('_', ' ')}
@@ -176,7 +176,7 @@ export function MarketSessionPanel() {
           </div>
 
           {/* ─── Column Headers ─── */}
-          <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] max-md:grid-cols-[1.2fr_100px] gap-2 px-4 py-1.5 text-[8px] font-bold text-white/20 uppercase tracking-[0.12em] border-b border-white/5 shrink-0">
+          <div className="grid grid-cols-[1.2fr_100px_80px_110px_1fr_100px] max-md:grid-cols-[1.2fr_100px] gap-2 px-5 py-2.5 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider border-b border-white/8 shrink-0">
             <div>Market</div>
             <div>Status</div>
             <div className="max-md:hidden">Local</div>
@@ -199,19 +199,19 @@ export function MarketSessionPanel() {
                   {/* Region Header */}
                   <button
                     onClick={() => toggleRegion(region.id)}
-                    className="w-full flex items-center gap-2 px-4 py-1.5 text-[9px] font-bold text-white/40 uppercase tracking-widest border-b border-white/5 hover:bg-white/2 transition-colors"
+                    className="w-full flex items-center gap-2.5 px-5 py-2 text-xs font-bold text-white/60 uppercase tracking-widest border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer"
                   >
                     {isCollapsed ? (
-                      <ChevronRight className="w-3 h-3" />
+                      <ChevronRight className="w-3.5 h-3.5 text-white/40" />
                     ) : (
-                      <ChevronDown className="w-3 h-3" />
+                      <ChevronDown className="w-3.5 h-3.5 text-white/40" />
                     )}
                     <span>{region.label}</span>
-                    <span className="text-white/15">({regionMarkets.length})</span>
+                    <span className="text-white/25">({regionMarkets.length})</span>
                     <div className="flex-1" />
                     {/* Open count in region */}
                     {regionMarkets.filter((r) => r.status.status === 'OPEN').length > 0 && (
-                      <span className="text-emerald-500/60">
+                      <span className="text-[#00E5A8] font-bold">
                         {regionMarkets.filter((r) => r.status.status === 'OPEN').length} open
                       </span>
                     )}
@@ -241,7 +241,7 @@ export function MarketSessionPanel() {
             })}
 
             {filtered.length === 0 && (
-              <div className="flex items-center justify-center py-8 text-[10px] text-white/20">
+              <div className="flex items-center justify-center py-10 text-xs font-mono text-white/30">
                 No markets match filters
               </div>
             )}
@@ -257,16 +257,16 @@ export function MarketSessionPanel() {
 function StatusPip({ label, count }: { label: string; count: number }) {
   const color = getStatusColor(label === 'PRE' ? 'PRE_MARKET' : label === 'AH' ? 'AFTER_HOURS' : label);
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-2">
       <span
         className={cn(
-          'w-1.5 h-1.5 rounded-full',
+          'w-2 h-2 rounded-full',
           count > 0 && 'animate-pulse'
         )}
         style={{ backgroundColor: color }}
       />
-      <span className="text-[9px] font-bold text-white/50 uppercase tracking-wider">{label}</span>
-      <span className="text-[9px] font-mono text-white/30">{count}</span>
+      <span className="text-xs font-bold text-white/70 uppercase tracking-wider">{label}</span>
+      <span className="text-xs font-mono font-bold text-white/50">{count}</span>
     </div>
   );
 }
@@ -277,20 +277,20 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
   const progress = computeSessionProgress(market, status);
 
   return (
-    <div className="grid grid-cols-[1.2fr_100px_70px_100px_1fr_100px] max-md:grid-cols-[1.2fr_100px] gap-2 px-4 py-2.5 border-b border-white/3 hover:bg-white/2 transition-colors items-center group">
+    <div className="grid grid-cols-[1.2fr_100px_80px_110px_1fr_100px] max-md:grid-cols-[1.2fr_100px] gap-2 px-5 py-3 border-b border-white/5 hover:bg-white/5 transition-colors items-center group">
       {/* Market Name */}
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         {isOpen && (
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_6px_rgba(34,197,94,0.4)]" />
+          <span className="w-2 h-2 rounded-full bg-[#00E5A8] shrink-0 shadow-[0_0_8px_rgba(0,229,168,0.6)]" />
         )}
         {!isOpen && (
-          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: `${statusColor}40` }} />
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: `${statusColor}50` }} />
         )}
         <div className="min-w-0">
-          <div className="text-[11px] font-semibold text-white/85 truncate">
+          <div className="text-xs font-bold text-white truncate">
             {market.city}
           </div>
-          <div className="text-[8px] text-white/25 truncate">
+          <div className="text-[9px] text-[#94A3B8] truncate mt-0.5">
             {market.exchanges.join(' · ')}
           </div>
         </div>
@@ -300,13 +300,13 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
       <div>
         <span
           className={cn(
-            'inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase border',
-            isOpen && 'shadow-[0_0_8px_rgba(34,197,94,0.15)]'
+            'inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold tracking-wider uppercase border',
+            isOpen && 'shadow-[0_0_8px_rgba(0,229,168,0.2)]'
           )}
           style={{
             color: statusColor,
-            backgroundColor: `${statusColor}0D`,
-            borderColor: `${statusColor}20`,
+            backgroundColor: `${statusColor}15`,
+            borderColor: `${statusColor}35`,
           }}
         >
           {status.status.replace('_', ' ')}
@@ -316,19 +316,19 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
       {/* Local Time */}
       <div
         suppressHydrationWarning
-        className="text-[11px] font-mono font-bold text-white/75 tabular-nums max-md:hidden"
+        className="text-xs font-mono font-bold text-white/90 tabular-nums max-md:hidden"
       >
         {status.localTime.slice(0, 5)}
       </div>
 
       {/* Schedule */}
-      <div className="text-[9px] text-white/35 font-mono tabular-nums max-md:hidden">
+      <div className="text-xs text-[#94A3B8] font-mono tabular-nums max-md:hidden">
         {market.openLocal}–{market.closeLocal}
       </div>
 
       {/* Countdown Bar */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 h-0.75 bg-white/5 rounded-full overflow-hidden">
+      <div className="flex items-center gap-2.5">
+        <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             className="h-full rounded-full"
             style={{ backgroundColor: statusColor }}
@@ -337,14 +337,14 @@ function MarketRow({ market, status }: { market: Market; status: { status: Marke
             transition={{ duration: 0.5, ease: 'easeOut' }}
           />
         </div>
-        <span className="text-[8px] text-white/30 whitespace-nowrap min-w-15 text-right">
+        <span className="text-[9px] text-[#94A3B8] font-mono whitespace-nowrap min-w-16 text-right">
           {status.nextChangeText || '—'}
         </span>
       </div>
 
       {/* UTC Offset */}
       <div className="text-right max-md:hidden">
-        <span className="text-[9px] font-mono text-white/30 tabular-nums">
+        <span className="text-xs font-mono text-[#94A3B8] tabular-nums font-semibold">
           UTC{status.utcOffset >= 0 ? '+' : ''}{status.utcOffset}
         </span>
       </div>

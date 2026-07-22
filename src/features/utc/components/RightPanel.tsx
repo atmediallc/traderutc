@@ -64,42 +64,42 @@ export function RightPanel() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 360 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute right-4 top-[98px] bottom-10 z-40 w-80 max-md:left-0 max-md:top-[84px] max-md:bottom-0 max-md:w-full max-md:max-w-[min(20rem,calc(100vw-1.5rem))] max-md:rounded-none rounded-[16px] border border-white/10 shadow-[-12px_0_40px_rgba(0,0,0,0.8)] flex flex-col font-sans overflow-hidden"
+          className="absolute right-6 top-[124px] bottom-12 z-40 w-[24rem] md:w-[26rem] max-md:left-0 max-md:top-[90px] max-md:bottom-0 max-md:w-full max-md:rounded-none rounded-2xl border border-white/12 shadow-[-16px_0_50px_rgba(0,0,0,0.8)] flex flex-col font-sans overflow-hidden"
           style={{
-            background: 'linear-gradient(180deg, rgba(8,12,20,0.92) 0%, rgba(3,5,10,0.98) 100%)',
-            backdropFilter: 'blur(32px) saturate(190%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(190%)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+            background: 'linear-gradient(180deg, rgba(8,12,20,0.95) 0%, rgba(3,5,10,0.98) 100%)',
+            backdropFilter: 'blur(36px) saturate(190%)',
+            WebkitBackdropFilter: 'blur(36px) saturate(190%)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1)',
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 select-none shrink-0">
-            <div className="flex items-center gap-2.5 text-white/95">
-              <div className="w-5 h-5 rounded-[4px] bg-[#00E5A8]/15 border border-[#00E5A8]/25 flex items-center justify-center">
-                <Clock className="w-3 h-3 text-[#00E5A8]" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 select-none shrink-0">
+            <div className="flex items-center gap-3 text-white">
+              <div className="w-6 h-6 rounded-lg bg-[#00E5A8]/15 border border-[#00E5A8]/30 flex items-center justify-center shadow-[0_0_12px_rgba(0,229,168,0.25)]">
+                <Clock className="w-3.5 h-3.5 text-[#00E5A8]" />
               </div>
               <div>
-                <h2 className="text-[11px] font-bold tracking-[0.12em] uppercase text-white/90">
+                <h2 className="text-xs font-bold tracking-wider uppercase text-white/95">
                   Control Center
                 </h2>
-                <p className="text-[8px] tracking-[0.2em] uppercase text-white/30">
+                <p className="text-[9px] tracking-widest uppercase font-semibold text-[#94A3B8]">
                   Telemetry & Chronometer
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
-                className="p-1.5 rounded-[6px] text-white/30 hover:bg-white/5 hover:text-white transition-all cursor-pointer"
+                className="p-1.5 rounded-lg text-white/40 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
                 aria-label="Settings"
               >
-                <Settings2 className="w-3.5 h-3.5" />
+                <Settings2 className="w-4 h-4" />
               </button>
               <button
                 onClick={toggle}
-                className="p-1.5 rounded-[6px] text-white/30 hover:bg-white/5 hover:text-white transition-all cursor-pointer"
+                className="p-1.5 rounded-lg text-white/40 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
                 aria-label="Close panel"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -107,29 +107,29 @@ export function RightPanel() {
           {/* Clocks & Telemetry List */}
           <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-4">
             {/* Realtime Clocks Section */}
-            <div className="space-y-2">
-              <div className="text-[9px] font-mono font-bold text-[#00E5A8] tracking-[0.2em] uppercase flex items-center gap-1.5 mb-2">
-                <Radio className="w-3 h-3 text-[#00E5A8]" />
+            <div className="space-y-2.5">
+              <div className="text-xs font-bold text-[#00E5A8] tracking-wider uppercase flex items-center gap-2 mb-2">
+                <Radio className="w-3.5 h-3.5 text-[#00E5A8]" />
                 World Chronometer
               </div>
               {clocks.map((clock, i) => (
                 <div
                   key={i}
                   className={`
-                    p-3 rounded-[12px] border relative overflow-hidden transition-all duration-200
+                    p-3.5 rounded-xl border relative overflow-hidden transition-all duration-200
                     ${clock.highlight
-                      ? 'bg-[#00E5A8]/8 border-[#00E5A8]/30 shadow-[0_4px_16px_rgba(0,229,168,0.1)]'
-                      : 'bg-[#12161E]/70 border-white/8 hover:border-white/15'}
+                      ? 'bg-[#00E5A8]/10 border-[#00E5A8]/40 shadow-[0_4px_20px_rgba(0,229,168,0.15)]'
+                      : 'bg-[#12161E]/80 border-white/10 hover:border-white/20'}
                   `}
                 >
-                  <div className="relative z-10 flex flex-col gap-1">
+                  <div className="relative z-10 flex flex-col gap-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[9px] font-mono font-semibold text-[#94A3B8] tracking-wider">
+                      <span className="text-xs font-bold text-[#94A3B8] tracking-wider">
                         {clock.label}
                       </span>
                       {clock.highlight && (
-                        <span className="flex items-center gap-1 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#00E5A8]/15 border border-[#00E5A8]/30 text-[#00E5A8]">
-                          <span className="w-1 h-1 rounded-full bg-[#00E5A8] animate-ping" />
+                        <span className="flex items-center gap-1.5 text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#00E5A8]/20 border border-[#00E5A8]/40 text-[#00E5A8]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A8] animate-ping" />
                           SYS MASTER
                         </span>
                       )}
@@ -137,14 +137,14 @@ export function RightPanel() {
 
                     <div
                       suppressHydrationWarning
-                      className={`text-xl font-bold tracking-tight font-mono tabular-nums ${
-                        clock.highlight ? 'text-white drop-shadow-[0_0_12px_rgba(0,229,168,0.4)]' : 'text-white/90'
+                      className={`text-2xl font-bold tracking-tight font-mono tabular-nums ${
+                        clock.highlight ? 'text-white drop-shadow-[0_0_16px_rgba(0,229,168,0.5)]' : 'text-white/95'
                       }`}
                     >
                       {clock.time}
                     </div>
 
-                    <div className="text-[8px] font-mono text-[#94A3B8]/60 tracking-widest uppercase">
+                    <div className="text-[9px] font-semibold text-[#94A3B8]/70 tracking-widest uppercase">
                       {clock.sub}
                     </div>
                   </div>
@@ -153,17 +153,17 @@ export function RightPanel() {
             </div>
 
             {/* Astronomical Telemetry */}
-            <div className="pt-3 border-t border-white/8 space-y-3">
-              <div className="text-[9px] font-mono font-bold text-[#5EE6FF] tracking-[0.2em] uppercase flex items-center gap-1.5">
-                <Compass className="w-3 h-3 text-[#5EE6FF]" />
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <div className="text-xs font-bold text-[#5EE6FF] tracking-wider uppercase flex items-center gap-2">
+                <Compass className="w-3.5 h-3.5 text-[#5EE6FF]" />
                 Astronomical Telemetry
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-[10px] bg-[#12161E]/80 border border-white/8 p-3 rounded-[12px]">
-                <div className="space-y-2">
-                  <div className="text-[8px] font-mono text-white/30 uppercase tracking-wider">Heliocentric</div>
+              <div className="grid grid-cols-2 gap-3 text-xs bg-[#12161E]/90 border border-white/10 p-4 rounded-xl">
+                <div className="space-y-2.5">
+                  <div className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider">Heliocentric</div>
                   <TechTimeBlock
-                    icon={<Sun className="w-2.5 h-2.5 text-amber-400" />}
+                    icon={<Sun className="w-3 h-3 text-amber-400" />}
                     label="SOLAR DEC"
                     value={`${(solar.declination * 180 / Math.PI).toFixed(4)}°`}
                   />
@@ -176,10 +176,10 @@ export function RightPanel() {
                     value={gmstString}
                   />
                 </div>
-                <div className="space-y-2 border-l border-white/8 pl-3">
-                  <div className="text-[8px] font-mono text-white/30 uppercase tracking-wider">Lunar Phase</div>
+                <div className="space-y-2.5 border-l border-white/10 pl-3">
+                  <div className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider">Lunar Phase</div>
                   <TechTimeBlock
-                    icon={<Moon className="w-2.5 h-2.5 text-sky-300" />}
+                    icon={<Moon className="w-3 h-3 text-sky-300" />}
                     label="LUNAR ILLUM"
                     value={`${(moon.illumination * 100).toFixed(1)}%`}
                   />
@@ -195,20 +195,20 @@ export function RightPanel() {
               </div>
 
               {/* Subsolar projection */}
-              <div className="bg-[#12161E]/80 border border-white/8 p-3 rounded-[12px] flex flex-col gap-1.5">
-                <div className="text-[9px] font-mono font-semibold text-[#94A3B8] tracking-wider uppercase">
+              <div className="bg-[#12161E]/90 border border-white/10 p-4 rounded-xl flex flex-col gap-2">
+                <div className="text-xs font-bold text-white/90 tracking-wider uppercase">
                   Subsolar Coordinates
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-white/30">LATITUDE</span>
-                    <span suppressHydrationWarning className="text-xs font-mono font-bold text-[#00E5A8] tabular-nums">
+                    <span className="text-[9px] font-semibold text-[#94A3B8]">LATITUDE</span>
+                    <span suppressHydrationWarning className="text-sm font-mono font-bold text-[#00E5A8] tabular-nums mt-0.5">
                       {subSolarLatStr}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-white/30">LONGITUDE</span>
-                    <span suppressHydrationWarning className="text-xs font-mono font-bold text-[#00E5A8] tabular-nums">
+                    <span className="text-[9px] font-semibold text-[#94A3B8]">LONGITUDE</span>
+                    <span suppressHydrationWarning className="text-sm font-mono font-bold text-[#00E5A8] tabular-nums mt-0.5">
                       {subSolarLngStr}
                     </span>
                   </div>
@@ -217,11 +217,11 @@ export function RightPanel() {
             </div>
 
             {/* Standard Systems Technical Timestamps */}
-            <div className="pt-3 border-t border-white/8 space-y-2">
-              <div className="text-[9px] font-mono font-bold text-[#94A3B8] tracking-[0.2em] uppercase">
+            <div className="pt-4 border-t border-white/10 space-y-2.5">
+              <div className="text-xs font-bold text-[#94A3B8] tracking-wider uppercase">
                 System Timestamps
               </div>
-              <div className="bg-[#12161E]/80 border border-white/8 p-3 rounded-[12px] space-y-2">
+              <div className="bg-[#12161E]/90 border border-white/10 p-4 rounded-xl space-y-2.5">
                 <TechTimeBlock label="UNIX TIMESTAMP" value={formats.unixTimestamp.toString()} />
                 <TechTimeBlock label="JULIAN DATE" value={formats.julianDate} />
                 <TechTimeBlock label="GPS TIME SEC" value={formats.gpsTime} />
@@ -245,11 +245,11 @@ function TechTimeBlock({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <div className="text-[8px] font-mono text-[#94A3B8] tracking-wider uppercase flex items-center gap-1">
+      <div className="text-[9px] font-semibold text-[#94A3B8] tracking-wider uppercase flex items-center gap-1">
         {icon}
         {label}
       </div>
-      <div suppressHydrationWarning className="text-[11px] font-mono font-bold text-white/90 tabular-nums truncate">
+      <div suppressHydrationWarning className="text-xs font-mono font-bold text-white tabular-nums truncate">
         {value}
       </div>
     </div>

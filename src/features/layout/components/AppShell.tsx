@@ -72,15 +72,15 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Floating Control Bar (bottom-center dock, above FooterBar) */}
       <div
-        className="fixed bottom-11 left-1/2 -translate-x-1/2 z-95 flex items-center gap-1.5 px-3 py-2 rounded-[16px] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all duration-300 hover:border-white/20 max-w-[calc(100vw-2rem)] overflow-x-auto scrollbar-hide"
+        className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[95] flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-300 hover:border-white/25 max-w-[calc(100vw-2rem)] overflow-x-auto scrollbar-hide"
         style={{
-          background: 'linear-gradient(180deg, rgba(14,18,26,0.85) 0%, rgba(6,8,14,0.95) 100%)',
-          backdropFilter: 'blur(28px) saturate(190%)',
-          WebkitBackdropFilter: 'blur(28px) saturate(190%)',
+          background: 'linear-gradient(180deg, rgba(14,18,26,0.9) 0%, rgba(6,8,14,0.98) 100%)',
+          backdropFilter: 'blur(32px) saturate(190%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(190%)',
         }}
       >
         {/* Group 1: Panels */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <ControlButton
             icon={<PanelLeft className="w-4 h-4" />}
             label="Markets"
@@ -105,10 +105,10 @@ export function AppShell({ children }: AppShellProps) {
         </div>
 
         {/* Divider 1 */}
-        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/15 to-transparent mx-1 shrink-0" />
+        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-1 shrink-0" />
 
         {/* Group 2: Utilities */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <ControlButton
             icon={<Search className="w-4 h-4" />}
             label="Search"
@@ -126,10 +126,10 @@ export function AppShell({ children }: AppShellProps) {
         </div>
 
         {/* Divider 2 */}
-        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/15 to-transparent mx-1 shrink-0" />
+        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-1 shrink-0" />
 
         {/* Group 3: Globe Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <ControlButton
             icon={<RotateCcw className="w-4 h-4" />}
             label={autoRotate ? 'Stop' : 'Rotate'}
@@ -172,9 +172,9 @@ function ControlButton({
   variant?: 'cyan' | 'emerald' | 'neutral';
 }) {
   const activeClass = {
-    cyan: 'bg-[#5EE6FF]/15 text-[#5EE6FF] border-[#5EE6FF]/30 shadow-[0_0_12px_rgba(94,230,255,0.25)]',
-    emerald: 'bg-[#00E5A8]/15 text-[#00E5A8] border-[#00E5A8]/30 shadow-[0_0_12px_rgba(0,229,168,0.25)]',
-    neutral: 'bg-white/10 text-white border-white/20',
+    cyan: 'bg-[#5EE6FF]/15 text-[#5EE6FF] border-[#5EE6FF]/40 shadow-[0_0_14px_rgba(94,230,255,0.3)]',
+    emerald: 'bg-[#00E5A8]/15 text-[#00E5A8] border-[#00E5A8]/40 shadow-[0_0_14px_rgba(0,229,168,0.3)]',
+    neutral: 'bg-white/12 text-white border-white/25',
   }[variant];
 
   const indicatorColor = {
@@ -187,10 +187,10 @@ function ControlButton({
     <button
       onClick={onClick}
       className={cn(
-        "relative flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[10px] font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 border border-transparent select-none",
+        "relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 border border-transparent select-none",
         active
           ? activeClass
-          : "text-white/40 hover:text-white/80 hover:bg-white/5 hover:border-white/10"
+          : "text-white/50 hover:text-white hover:bg-white/8 hover:border-white/15"
       )}
       aria-label={label}
     >

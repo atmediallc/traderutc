@@ -45,51 +45,50 @@ export function HeaderTimeBar() {
   }), [formats]);
 
   return (
-    <header className="relative z-50 w-full select-none">
-      {/* ── Main Top Bar Container (Height ~92px with ample vertical & horizontal breathing room) ── */}
+    <header className="fixed top-4 left-6 right-6 z-50 select-none pointer-events-none">
+      {/* ── Main Floating Bar Container ── */}
       <div
         className={cn(
-          'relative w-full min-h-[88px] md:h-[92px] px-6 md:px-8 py-3 flex items-center justify-between gap-4 md:gap-6',
-          'bg-[#080C12]/85 backdrop-blur-2xl border-b border-white/8',
-          'shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]',
+          'pointer-events-auto relative w-full rounded-2xl px-6 md:px-8 py-3.5 flex items-center justify-between gap-4 md:gap-6',
+          'bg-[#080C12]/85 backdrop-blur-3xl border border-white/12',
+          'shadow-[0_16px_50px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.12)]',
           'transition-all duration-300',
           isMobile && 'h-auto py-4 px-4 flex-col gap-3'
         )}
       >
         {/* ── Bottom Ambient Glow Line ─────────────────── */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00E5A8]/30 via-40% via-[#5EE6FF]/30 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-[#00E5A8]/40 via-40% via-[#5EE6FF]/40 to-transparent pointer-events-none" />
 
         {/* ── LEFT SECTION: Logo + Subtitle + System Health ────── */}
         <div className="flex items-center gap-4 shrink-0">
           {/* Logo & Subtitle */}
           <div className="flex items-center gap-3">
             <div className="relative group cursor-pointer">
-              <div className="w-10 h-10 rounded-[12px] bg-linear-to-br from-[#00E5A8]/20 via-[#12161E] to-[#5EE6FF]/20 border border-[#00E5A8]/30 flex items-center justify-center shadow-[0_0_18px_rgba(0,229,168,0.2)] group-hover:border-[#00E5A8]/60 group-hover:shadow-[0_0_25px_rgba(0,229,168,0.4)] transition-all duration-300">
-                <Globe className="w-5 h-5 text-[#00E5A8] transition-transform duration-700 group-hover:rotate-180" />
+              <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-[#00E5A8]/25 via-[#12161E] to-[#5EE6FF]/25 border border-[#00E5A8]/40 flex items-center justify-center shadow-[0_0_20px_rgba(0,229,168,0.25)] group-hover:border-[#00E5A8]/70 group-hover:shadow-[0_0_28px_rgba(0,229,168,0.45)] transition-all duration-300">
+                <Globe className="w-5.5 h-5.5 text-[#00E5A8] transition-transform duration-700 group-hover:rotate-180" />
               </div>
             </div>
             <div className="flex flex-col leading-tight">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-mono font-bold tracking-widest text-white">
+                <span className="text-base font-bold tracking-widest text-white">
                   TRADER<span className="text-[#00E5A8]">UTC</span>
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider bg-[#00E5A8]/15 text-[#00E5A8] border border-[#00E5A8]/30 shadow-[0_0_10px_rgba(0,229,168,0.2)]">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold tracking-wider bg-[#00E5A8]/15 text-[#00E5A8] border border-[#00E5A8]/35 shadow-[0_0_12px_rgba(0,229,168,0.25)]">
                   PRO
                 </span>
               </div>
-              <span className="text-[10px] font-mono tracking-[0.2em] text-[#94A3B8] uppercase mt-0.5">
+              <span className="text-[11px] tracking-[0.2em] text-[#94A3B8] uppercase font-semibold mt-0.5">
                 Terminal
               </span>
             </div>
           </div>
 
-          <div className="hidden lg:block w-px h-7 bg-gradient-to-b from-transparent via-white/12 to-transparent mx-1" />
+          <div className="hidden lg:block w-px h-8 bg-gradient-to-b from-transparent via-white/15 to-transparent mx-1" />
 
-          {/* Left System Badges */}
+          {/* Left System Badge */}
           {!isMobile && (
             <div className="hidden lg:flex items-center gap-2">
-              <Badge color="emerald" label="SYSTEM ONLINE" icon={<ShieldCheck className="w-3.5 h-3.5" />} />
-              <Badge color="cyan" label="SYNC LOCKED" icon={<Radio className="w-3.5 h-3.5" />} />
+              <Badge color="emerald" label="SYSTEM SYNCED" icon={<ShieldCheck className="w-4 h-4 text-[#00E5A8]" />} />
             </div>
           )}
         </div>
@@ -104,33 +103,35 @@ export function HeaderTimeBar() {
             </div>
           )}
 
-          {/* Master Clock Center Module */}
-          <div className="flex flex-col items-center justify-center px-5 py-1.5 rounded-[12px] bg-[#12161E]/80 border border-white/10 shadow-[0_6px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] hover:border-[#00E5A8]/40 hover:shadow-[0_6px_24px_rgba(0,229,168,0.15)] transition-all duration-300 group">
-            <div className="flex items-baseline gap-2.5">
-              <span className="text-[9px] font-mono font-bold text-[#00E5A8] tracking-[0.22em] uppercase select-none px-1.5 py-0.5 rounded bg-[#00E5A8]/15 border border-[#00E5A8]/30 shadow-[0_0_8px_rgba(0,229,168,0.2)]">
-                UTC
-              </span>
-              <motion.span
-                key={mounted ? utc : '00:00:00'}
-                initial={{ opacity: 0.9, y: -0.5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
-                className="text-2xl sm:text-3xl md:text-[38px] font-mono font-bold tracking-tight text-white tabular-nums leading-none"
-                style={{
-                  textShadow: '0 0 24px rgba(0, 229, 168, 0.35)',
-                }}
-                suppressHydrationWarning
-              >
-                {mounted ? utc : '00:00:00'}
-              </motion.span>
-            </div>
+          {/* Master Clock Centerpiece Module */}
+          <div className="flex flex-col items-center justify-center px-7 py-2.5 rounded-xl bg-gradient-to-b from-[#121824]/90 via-[#0E131E]/95 to-[#080C12] border border-[#00E5A8]/30 shadow-[0_0_24px_rgba(0,229,168,0.15)] hover:border-[#00E5A8]/50 transition-all duration-300 group">
+            {/* Top UTC Label Badge */}
+            <span className="text-[8px] font-mono font-semibold text-[#00E5A8] tracking-[0.22em] uppercase select-none px-2 py-0.5 rounded bg-[#00E5A8]/12 border border-[#00E5A8]/25 mb-1">
+              COORDINATED UNIVERSAL TIME
+            </span>
 
-            <div
-              className="flex items-center gap-2 text-[10px] font-mono text-[#94A3B8] mt-1 tracking-wider"
+            {/* Proportional Clock Digits */}
+            <motion.span
+              key={mounted ? utc : '00:00:00'}
+              initial={{ opacity: 0.9, y: -0.5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              className="text-2xl sm:text-3xl md:text-[32px] font-mono font-bold tracking-widest text-white tabular-nums my-0.5"
+              style={{
+                textShadow: '0 0 20px rgba(0, 229, 168, 0.35)',
+              }}
               suppressHydrationWarning
             >
-              <span className="font-bold text-white/95">{mounted ? day : 'Loading...'}</span>
-              <span className="text-white/20">•</span>
+              {mounted ? utc : '00:00:00'}
+            </motion.span>
+
+            {/* Date line */}
+            <div
+              className="flex items-center gap-2 text-[10px] font-mono text-[#94A3B8] tracking-wider mt-0.5"
+              suppressHydrationWarning
+            >
+              <span className="font-bold text-white/90">{mounted ? day : 'Loading...'}</span>
+              <span className="text-[#00E5A8]/40">•</span>
               <span>{mounted ? date : '----'}</span>
             </div>
           </div>
@@ -144,24 +145,16 @@ export function HeaderTimeBar() {
           )}
         </div>
 
-        {/* ── RIGHT SECTION: Status Badges & Tech Telemetry Toggle ── */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {!isMobile && (
-            <div className="hidden md:flex items-center gap-2">
-              <StatusBadge label="Clock Running" color="emerald" pulse />
-              <StatusBadge label="Sync Locked" color="cyan" />
-              <StatusBadge label="Live Data" color="amber" pulse />
-            </div>
-          )}
-
+        {/* ── RIGHT SECTION: Tech Telemetry Toggle ── */}
+        <div className="flex items-center gap-3 shrink-0">
           {/* Tech Spec Drawer Toggle Button */}
           <button
             onClick={() => setTechDrawerOpen(!techDrawerOpen)}
             className={cn(
-              'flex items-center gap-2 px-3.5 py-1.5 rounded-[10px]',
+              'flex items-center gap-2 px-3.5 py-1.5 rounded-lg',
               'bg-[#12161E]/90 border border-white/10 text-[#94A3B8]',
               'hover:bg-[#161B26] hover:text-white hover:border-[#00E5A8]/40 hover:shadow-[0_0_15px_rgba(0,229,168,0.2)]',
-              'transition-all duration-300 cursor-pointer font-mono text-xs font-semibold select-none',
+              'transition-all duration-300 cursor-pointer text-[11px] font-semibold select-none',
               techDrawerOpen && 'border-[#00E5A8]/50 bg-[#00E5A8]/15 text-[#00E5A8] shadow-[0_0_15px_rgba(0,229,168,0.25)]'
             )}
             title="Toggle Technical Telemetry"
@@ -185,7 +178,7 @@ export function HeaderTimeBar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full bg-[#080C12]/95 backdrop-blur-3xl border-b border-white/10 overflow-hidden shadow-[0_16px_50px_rgba(0,0,0,0.7)]"
+            className="pointer-events-auto mt-2 w-full bg-[#080C12]/95 backdrop-blur-3xl border border-white/10 rounded-xl overflow-hidden shadow-[0_16px_50px_rgba(0,0,0,0.7)]"
           >
             <div className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
               <TelemetryCard label="DAY OF YEAR" value={mounted ? `DOY ${dayOfYear}` : 'DOY --'} highlight />
@@ -206,17 +199,17 @@ export function HeaderTimeBar() {
 /*  Subcomponents & Reusable Glass Cards                           */
 /* ─────────────────────────────────────────────────────────────── */
 
-/** Compact glass card for center section timezone info */
+/** Glass card for center section timezone info */
 function HeaderCard({ label, value }: { label: string; value: string }) {
   return (
     <div
-      className="flex flex-col px-3.5 py-1.5 rounded-[10px] bg-[#12161E]/80 border border-white/8 hover:bg-[#161B26] hover:border-white/20 transition-all duration-200 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.06)] min-w-[115px]"
+      className="flex flex-col justify-center px-4 py-2 rounded-xl bg-[#12161E]/80 border border-white/10 hover:bg-[#161B26] hover:border-white/20 transition-all duration-200 shadow-[0_4px_16px_rgba(0,0,0,0.3)] min-w-[130px] gap-0.5"
       suppressHydrationWarning
     >
-      <span className="text-[9px] font-mono text-[#94A3B8] tracking-[0.14em] uppercase leading-none mb-1 font-medium">
+      <span className="text-[9px] font-semibold text-[#94A3B8] tracking-[0.14em] uppercase font-sans">
         {label}
       </span>
-      <span className="text-sm font-mono font-bold text-white/95 tabular-nums leading-none">
+      <span className="text-xs font-mono font-bold text-white tabular-nums tracking-wide">
         {value}
       </span>
     </div>
@@ -235,22 +228,22 @@ function Badge({
 }) {
   const styles = {
     emerald: {
-      bg: 'bg-[#00E5A8]/10',
-      border: 'border-[#00E5A8]/25',
+      bg: 'bg-[#00E5A8]/12',
+      border: 'border-[#00E5A8]/30',
       text: 'text-[#00E5A8]',
       dot: 'bg-[#00E5A8]',
       shadow: 'shadow-[0_0_10px_rgba(0,229,168,0.5)]',
     },
     cyan: {
-      bg: 'bg-[#5EE6FF]/10',
-      border: 'border-[#5EE6FF]/25',
+      bg: 'bg-[#5EE6FF]/12',
+      border: 'border-[#5EE6FF]/30',
       text: 'text-[#5EE6FF]',
       dot: 'bg-[#5EE6FF]',
       shadow: 'shadow-[0_0_10px_rgba(94,230,255,0.5)]',
     },
     amber: {
-      bg: 'bg-amber-400/10',
-      border: 'border-amber-400/25',
+      bg: 'bg-amber-400/12',
+      border: 'border-amber-400/30',
       text: 'text-amber-400',
       dot: 'bg-amber-400',
       shadow: 'shadow-[0_0_10px_rgba(251,191,36,0.5)]',
@@ -260,7 +253,7 @@ function Badge({
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border font-mono text-[10px] font-bold tracking-wider transition-all duration-200 shadow-xs',
+        'flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold tracking-wider transition-all duration-200 shadow-xs select-none',
         styles.bg,
         styles.border,
         styles.text
@@ -270,7 +263,7 @@ function Badge({
         icon
       ) : (
         <div className="relative flex items-center justify-center">
-          <div className={cn('w-1.5 h-1.5 rounded-full', styles.dot, styles.shadow)} />
+          <div className={cn('w-2 h-2 rounded-full', styles.dot, styles.shadow)} />
         </div>
       )}
       <span>{label}</span>
@@ -307,14 +300,14 @@ function StatusBadge({
   }[color];
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-[#12161E]/80 border border-white/8 hover:border-white/18 transition-all duration-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+    <div className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[#12161E]/90 border border-white/10 hover:border-white/20 transition-all duration-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
       <div className="relative flex items-center justify-center">
-        <div className={cn('w-1.5 h-1.5 rounded-full', styles.dot, styles.glow)} />
+        <div className={cn('w-2 h-2 rounded-full', styles.dot, styles.glow)} />
         {pulse && (
-          <div className={cn('absolute inset-0 w-1.5 h-1.5 rounded-full animate-ping opacity-75', styles.dot)} />
+          <div className={cn('absolute inset-0 w-2 h-2 rounded-full animate-ping opacity-75', styles.dot)} />
         )}
       </div>
-      <span className={cn('text-[10px] font-mono font-semibold tracking-wide', styles.text)}>
+      <span className={cn('text-xs font-semibold tracking-wide', styles.text)}>
         {label}
       </span>
     </div>
@@ -334,18 +327,18 @@ function TelemetryCard({
   return (
     <div
       className={cn(
-        'flex flex-col p-3 rounded-[10px] bg-[#12161E]/90 border border-white/8 shadow-xs',
-        'hover:border-white/18 transition-all duration-200',
-        highlight && 'border-[#00E5A8]/40 bg-[#00E5A8]/8 shadow-[0_0_15px_rgba(0,229,168,0.1)]'
+        'flex flex-col p-4 rounded-xl bg-[#12161E]/90 border border-white/10 shadow-xs gap-1',
+        'hover:border-white/20 transition-all duration-200',
+        highlight && 'border-[#00E5A8]/50 bg-[#00E5A8]/10 shadow-[0_0_18px_rgba(0,229,168,0.15)]'
       )}
       suppressHydrationWarning
     >
-      <span className="text-[9px] font-mono text-[#94A3B8] tracking-widest uppercase mb-1 font-medium">
+      <span className="text-[10px] font-semibold text-[#94A3B8] tracking-widest uppercase font-sans leading-tight">
         {label}
       </span>
       <span
         className={cn(
-          'text-xs font-mono font-bold text-white/95 tabular-nums truncate',
+          'text-sm font-mono font-bold text-white tabular-nums truncate leading-tight',
           highlight && 'text-[#00E5A8]'
         )}
       >

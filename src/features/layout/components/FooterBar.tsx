@@ -69,8 +69,8 @@ function Metric({ label, value, className, icon }: { label: string; value: strin
   return (
     <div className={cn('flex items-center gap-1.5 shrink-0 font-mono', className)}>
       {icon}
-      <span className="text-[9px] text-[#94A3B8] tracking-widest uppercase font-medium">{label}</span>
-      <span suppressHydrationWarning className="text-[10px] font-bold text-white/90 tabular-nums">{value}</span>
+      <span className="text-[10px] text-[#94A3B8] tracking-widest uppercase font-semibold">{label}</span>
+      <span suppressHydrationWarning className="text-xs font-bold text-white tabular-nums">{value}</span>
     </div>
   );
 }
@@ -84,14 +84,14 @@ function InlineBar({ value, color }: { value: number; color: 'emerald' | 'amber'
 
   return (
     <div className="flex items-center gap-2 shrink-0 font-mono">
-      <span className="text-[9px] text-[#94A3B8] tracking-widest uppercase font-medium">WAVE</span>
-      <div className="relative w-14 h-1.5 rounded-full bg-white/8 overflow-hidden p-0.5 border border-white/5">
+      <span className="text-[10px] text-[#94A3B8] tracking-widest uppercase font-semibold">WAVE</span>
+      <div className="relative w-20 h-2 rounded-full bg-white/10 overflow-hidden p-0.5 border border-white/8">
         <div
           className={cn('h-full rounded-full transition-all duration-700 ease-out', barColor)}
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
       </div>
-      <span suppressHydrationWarning className="text-[10px] font-bold text-white/80 tabular-nums">
+      <span suppressHydrationWarning className="text-xs font-bold text-white tabular-nums">
         {Math.round(value)}%
       </span>
     </div>
@@ -120,48 +120,48 @@ export function FooterBar() {
 
   return (
     <footer
-      className="fixed bottom-0 left-0 right-0 z-[90] h-8 border-t border-white/8 select-none flex items-center justify-between px-4 safe-area-bottom"
+      className="fixed bottom-0 left-0 right-0 z-[90] h-9 border-t border-white/10 select-none flex items-center justify-between px-5 safe-area-bottom"
       style={{
         background: 'linear-gradient(180deg, rgba(8,12,18,0.95) 0%, rgba(4,6,10,0.98) 100%)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
       }}
     >
       {/* Left: System telemetry */}
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-2">
           <LedDot active={!isWeekend} color={statusColor} />
-          <span className="text-[10px] font-mono font-bold tracking-wider text-[#00E5A8] uppercase">
+          <span className="text-xs font-mono font-bold tracking-wider text-[#00E5A8] uppercase">
             {isWeekend ? 'IDLE' : 'SYNCED'}
           </span>
         </div>
 
         <VDiv />
 
-        <Metric label="FPS" value={`${fps}`} icon={<Activity className="w-3 h-3 text-[#00E5A8]" />} />
+        <Metric label="FPS" value={`${fps}`} icon={<Activity className="w-3.5 h-3.5 text-[#00E5A8]" />} />
         <span className={cn(
-          'inline-block w-1.5 h-1.5 rounded-full shrink-0',
-          fps >= 55 ? 'bg-[#00E5A8] shadow-[0_0_6px_rgba(0,229,168,0.6)]' : fps >= 30 ? 'bg-amber-400' : 'bg-red-400'
+          'inline-block w-2 h-2 rounded-full shrink-0',
+          fps >= 55 ? 'bg-[#00E5A8] shadow-[0_0_8px_rgba(0,229,168,0.7)]' : fps >= 30 ? 'bg-amber-400' : 'bg-red-400'
         )} />
 
         <VDiv />
-        <Metric label="RENDER" value={qualityLabel} icon={<Cpu className="w-3 h-3 text-[#5EE6FF]" />} />
+        <Metric label="RENDER" value={qualityLabel} icon={<Cpu className="w-3.5 h-3.5 text-[#5EE6FF]" />} />
       </div>
 
       {/* Center: Market intelligence & wave */}
-      <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
+      <div className="flex items-center gap-3.5 overflow-x-auto scrollbar-hide">
         <InlineBar value={marketIntel.wave.progress} color={waveColor} />
         <VDiv />
         <Metric label="LIQUIDITY" value={`${Math.round(marketIntel.liquidity)}%`} />
-        <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3.5">
           <VDiv />
           <Metric label="ZOOM" value={`L${zoomLevel}`} />
         </div>
       </div>
 
       {/* Right: Master UTC Clock */}
-      <div className="flex items-center gap-2 shrink-0">
-        <Radio className="w-3 h-3 text-[#00E5A8] animate-pulse" />
+      <div className="flex items-center gap-2.5 shrink-0">
+        <Radio className="w-3.5 h-3.5 text-[#00E5A8] animate-pulse" />
         <Metric label="UTC MASTER" value={formats.utc || '--:--:--'} />
       </div>
     </footer>

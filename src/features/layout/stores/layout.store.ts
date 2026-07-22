@@ -60,13 +60,25 @@ export const useLayoutStore = create<LayoutState & LayoutActions>((set) => ({
 
   // Actions
   toggleLeftSidebar: () =>
-    set((s) => ({ leftSidebarOpen: !s.leftSidebarOpen })),
+    set((s) => {
+      const nextState = !s.leftSidebarOpen;
+      return {
+        leftSidebarOpen: nextState,
+        sessionPanelOpen: nextState ? false : s.sessionPanelOpen,
+      };
+    }),
   toggleRightPanel: () =>
     set((s) => ({ rightPanelOpen: !s.rightPanelOpen })),
   toggleBottomBar: () =>
     set((s) => ({ bottomBarExpanded: !s.bottomBarExpanded })),
   toggleSessionPanel: () =>
-    set((s) => ({ sessionPanelOpen: !s.sessionPanelOpen })),
+    set((s) => {
+      const nextState = !s.sessionPanelOpen;
+      return {
+        sessionPanelOpen: nextState,
+        leftSidebarOpen: nextState ? false : s.leftSidebarOpen,
+      };
+    }),
   toggleSearch: () =>
     set((s) => ({ searchOpen: !s.searchOpen })),
   toggleCalendar: () =>
