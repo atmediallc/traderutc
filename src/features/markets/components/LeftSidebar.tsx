@@ -84,12 +84,12 @@ export function LeftSidebar() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -360 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute left-3 top-[52px] bottom-3 z-40 w-[22rem] max-md:left-0 max-md:top-0 max-md:bottom-0 max-md:w-full max-md:max-w-[min(22rem,calc(100vw-1.5rem))] max-md:rounded-none rounded-lg border border-[var(--border-default)] flex flex-col will-change-transform overflow-hidden"
+          className="absolute left-4 top-[98px] bottom-10 z-40 w-[22rem] max-md:left-0 max-md:top-[84px] max-md:bottom-0 max-md:w-full max-md:max-w-[min(22rem,calc(100vw-1.5rem))] max-md:rounded-none rounded-[16px] border border-white/10 flex flex-col will-change-transform overflow-hidden"
           style={{
-            background: 'linear-gradient(180deg, rgba(8,12,20,0.94) 0%, rgba(3,5,10,0.98) 100%)',
+            background: 'linear-gradient(180deg, rgba(8,12,20,0.92) 0%, rgba(3,5,10,0.98) 100%)',
             backdropFilter: 'blur(32px) saturate(190%)',
             WebkitBackdropFilter: 'blur(32px) saturate(190%)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
           }}
         >
           {/* ─── Header ─── */}

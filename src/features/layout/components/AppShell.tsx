@@ -4,19 +4,6 @@
  * The main layout container that positions the Earth canvas as the
  * full-screen background and overlays all UI panels on top with
  * glassmorphism styling.
- *
- * Layout structure:
- * ┌─────────────────────────────────┐
- * │           Header Bar            │
- * ├────┬───────────────────┬────────┤
- * │    │                   │  UTC   │
- * │ L  │    3D Earth       │  Panel │
- * │    │    (Canvas)       │        │
- * │    │                   │        │
- * ├────┴───────────────────┴────────┤
- * │         Footer Bar              │
- * │   (System / Market Telemetry)   │
- * └─────────────────────────────────┘
  */
 'use client';
 
@@ -64,7 +51,7 @@ export function AppShell({ children }: AppShellProps) {
   const resetCamera = useEarthStore((s) => s.resetCamera);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-black font-sans">
+    <div className="relative w-screen h-screen overflow-hidden bg-black font-sans select-none">
       {/* Header */}
       <HeaderTimeBar />
 
@@ -83,13 +70,13 @@ export function AppShell({ children }: AppShellProps) {
       <CommandPalette />
       <CoordinateTelemetryCard />
 
-      {/* Floating Control Bar (bottom-center, above FooterBar) */}
+      {/* Floating Control Bar (bottom-center dock, above FooterBar) */}
       <div
-        className="fixed bottom-10 left-1/2 -translate-x-1/2 z-95 flex items-center gap-1 px-2 py-1.5 rounded-xl border border-white/8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all duration-200 hover:border-white/12 hover:shadow-[0_24px_60px_-12px_rgba(0,0,0,0.9)] max-w-[calc(100vw-1.5rem)] overflow-x-auto scrollbar-hide"
+        className="fixed bottom-11 left-1/2 -translate-x-1/2 z-95 flex items-center gap-1.5 px-3 py-2 rounded-[16px] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.08)] transition-all duration-300 hover:border-white/20 max-w-[calc(100vw-2rem)] overflow-x-auto scrollbar-hide"
         style={{
-          background: 'linear-gradient(180deg, rgba(20,25,35,0.82) 0%, rgba(10,12,18,0.92) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          background: 'linear-gradient(180deg, rgba(14,18,26,0.85) 0%, rgba(6,8,14,0.95) 100%)',
+          backdropFilter: 'blur(28px) saturate(190%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(190%)',
         }}
       >
         {/* Group 1: Panels */}
@@ -99,26 +86,26 @@ export function AppShell({ children }: AppShellProps) {
             label="Markets"
             onClick={toggleLeftSidebar}
             active={leftSidebarOpen}
-            variant="blue"
+            variant="cyan"
           />
           <ControlButton
             icon={<BarChart3 className="w-4 h-4" />}
             label="Sessions"
             onClick={toggleSessionPanel}
             active={sessionPanelOpen}
-            variant="blue"
+            variant="cyan"
           />
           <ControlButton
             icon={<Clock className="w-4 h-4" />}
             label="Clocks"
             onClick={toggleRightPanel}
             active={rightPanelOpen}
-            variant="blue"
+            variant="cyan"
           />
         </div>
 
         {/* Divider 1 */}
-        <div className="w-px h-6 bg-gradient-to-b from-white/0 via-white/15 to-white/0 mx-1 shrink-0" />
+        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/15 to-transparent mx-1 shrink-0" />
 
         {/* Group 2: Utilities */}
         <div className="flex items-center gap-1">
@@ -127,19 +114,19 @@ export function AppShell({ children }: AppShellProps) {
             label="Search"
             onClick={toggleSearch}
             active={searchOpen}
-            variant="blue"
+            variant="cyan"
           />
           <ControlButton
             icon={<Calendar className="w-4 h-4" />}
             label="Calendar"
             onClick={toggleCalendar}
             active={calendarOpen}
-            variant="blue"
+            variant="cyan"
           />
         </div>
 
         {/* Divider 2 */}
-        <div className="w-px h-6 bg-gradient-to-b from-white/0 via-white/15 to-white/0 mx-1 shrink-0" />
+        <div className="w-px h-6 bg-gradient-to-b from-transparent via-white/15 to-transparent mx-1 shrink-0" />
 
         {/* Group 3: Globe Controls */}
         <div className="flex items-center gap-1">
@@ -176,34 +163,34 @@ function ControlButton({
   label,
   onClick,
   active,
-  variant = 'blue',
+  variant = 'cyan',
 }: {
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
   active?: boolean;
-  variant?: 'blue' | 'emerald' | 'neutral';
+  variant?: 'cyan' | 'emerald' | 'neutral';
 }) {
   const activeClass = {
-    blue: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
-    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    cyan: 'bg-[#5EE6FF]/15 text-[#5EE6FF] border-[#5EE6FF]/30 shadow-[0_0_12px_rgba(94,230,255,0.25)]',
+    emerald: 'bg-[#00E5A8]/15 text-[#00E5A8] border-[#00E5A8]/30 shadow-[0_0_12px_rgba(0,229,168,0.25)]',
     neutral: 'bg-white/10 text-white border-white/20',
   }[variant];
 
   const indicatorColor = {
-    blue: 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.7)]',
-    emerald: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]',
-    neutral: 'bg-white shadow-[0_0_6px_rgba(255,255,255,0.7)]',
+    cyan: 'bg-[#5EE6FF] shadow-[0_0_8px_rgba(94,230,255,0.8)]',
+    emerald: 'bg-[#00E5A8] shadow-[0_0_8px_rgba(0,229,168,0.8)]',
+    neutral: 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]',
   }[variant];
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        "relative flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-mono font-medium tracking-wide uppercase transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 border border-transparent select-none",
+        "relative flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-[10px] font-mono font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 border border-transparent select-none",
         active
           ? activeClass
-          : "text-white/40 hover:text-white/75 hover:bg-white/5"
+          : "text-white/40 hover:text-white/80 hover:bg-white/5 hover:border-white/10"
       )}
       aria-label={label}
     >
@@ -214,7 +201,7 @@ function ControlButton({
       {active && (
         <motion.span
           layoutId={`active-bar-${variant}`}
-          className={cn("absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full", indicatorColor)}
+          className={cn("absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full", indicatorColor)}
           transition={{ type: 'spring', stiffness: 350, damping: 25 }}
         />
       )}

@@ -115,6 +115,9 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
         }
       },
       setAutoRotate: (en) => {
+        if (en) {
+          setIsManuallyOverridden(false);
+        }
         if (chartRef.current && !disposedRef.current) {
           setGlobeAutoRotate(chartRef.current, en);
         }
@@ -279,10 +282,13 @@ const Globe = forwardRef<GlobeHandle, GlobeProps>(function Globe(
   // Update auto-rotate when prop changes
   useEffect(() => {
     const chart = chartRef.current;
-    if (chart && !disposedRef.current && !isChartDisposed(chart)) {
-      setGlobeAutoRotate(chart, autoRotate && !isManuallyOverridden);
+    if (autoRotate) {
+      setIsManuallyOverridden(false);
     }
-  }, [autoRotate, isManuallyOverridden]);
+    if (chart && !disposedRef.current && !isChartDisposed(chart)) {
+      setGlobeAutoRotate(chart, autoRotate);
+    }
+  }, [autoRotate]);
 
   // Handle resize on container size changes
   useEffect(() => {

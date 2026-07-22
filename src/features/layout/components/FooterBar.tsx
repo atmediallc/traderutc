@@ -1,8 +1,8 @@
 /**
- * FooterBar — Compact single-row telemetry strip
+ * FooterBar — Institutional-grade telemetry & telemetry status strip
  *
- * Bloomberg-inspired bottom status bar with inline metrics:
- * [LED SYNC] | FPS 59 | ZOOM L4 | HQ | ▰▰▰▱▱ 67% | UTC 14:30:45
+ * Bloomberg-inspired bottom telemetry panel with real-time performance indicators:
+ * [LED SYNC] | FPS 60 | ZOOM L4 | QUALITY HQ | WAVE 67% | UTC 14:30:45
  */
 'use client';
 
@@ -11,6 +11,7 @@ import { useUTCStore } from '@/features/utc/stores/utc.store';
 import { useEarthStore } from '@/features/earth/stores/earth.store';
 import { marketIntelligenceEngine } from '@/engines';
 import { cn } from '@/lib/utils';
+import { Cpu, Activity, Zap, Radio } from 'lucide-react';
 
 /* ─── FPS Hook ─── */
 function useFps(): number {
@@ -43,53 +44,54 @@ function useFps(): number {
 
 /* ─── Sub-components ─── */
 
-function LedDot({ active, color = 'emerald' }: { active: boolean; color?: 'emerald' | 'amber' | 'sky' | 'red' }) {
+function LedDot({ active, color = 'emerald' }: { active: boolean; color?: 'emerald' | 'amber' | 'cyan' | 'red' }) {
   const colors: Record<string, string> = {
-    emerald: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]',
-    amber: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)]',
-    sky: 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.7)]',
-    red: 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.7)]',
+    emerald: 'bg-[#00E5A8] shadow-[0_0_8px_rgba(0,229,168,0.7)]',
+    amber: 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.7)]',
+    cyan: 'bg-[#5EE6FF] shadow-[0_0_8px_rgba(94,230,255,0.7)]',
+    red: 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.7)]',
   };
   return (
     <span
       className={cn(
         'inline-block w-1.5 h-1.5 rounded-full shrink-0 transition-all duration-500',
-        active ? colors[color] : 'bg-white/15'
+        active ? colors[color] : 'bg-white/20'
       )}
     />
   );
 }
 
 function VDiv() {
-  return <div className="w-px h-2.5 bg-white/8 mx-1.5 shrink-0" />;
+  return <div className="w-px h-3 bg-gradient-to-b from-transparent via-white/12 to-transparent mx-2 shrink-0" />;
 }
 
-function Metric({ label, value, className }: { label: string; value: string; className?: string }) {
+function Metric({ label, value, className, icon }: { label: string; value: string; className?: string; icon?: React.ReactNode }) {
   return (
-    <div className={cn('flex items-center gap-1.5 shrink-0', className)}>
-      <span className="text-[9px] font-mono text-white/30 tracking-widest uppercase">{label}</span>
-      <span suppressHydrationWarning className="text-[10px] font-mono font-semibold text-white/70 tabular-nums">{value}</span>
+    <div className={cn('flex items-center gap-1.5 shrink-0 font-mono', className)}>
+      {icon}
+      <span className="text-[9px] text-[#94A3B8] tracking-widest uppercase font-medium">{label}</span>
+      <span suppressHydrationWarning className="text-[10px] font-bold text-white/90 tabular-nums">{value}</span>
     </div>
   );
 }
 
-function InlineBar({ value, color }: { value: number; color: 'emerald' | 'amber' | 'sky' }) {
+function InlineBar({ value, color }: { value: number; color: 'emerald' | 'amber' | 'cyan' }) {
   const barColor = {
-    emerald: 'bg-emerald-400',
+    emerald: 'bg-[#00E5A8]',
     amber: 'bg-amber-400',
-    sky: 'bg-sky-400',
+    cyan: 'bg-[#5EE6FF]',
   }[color];
 
   return (
-    <div className="flex items-center gap-1.5 shrink-0">
-      <span className="text-[9px] font-mono text-white/30 tracking-widest uppercase">WAVE</span>
-      <div className="relative w-12 h-1 rounded-full bg-white/6 overflow-hidden">
+    <div className="flex items-center gap-2 shrink-0 font-mono">
+      <span className="text-[9px] text-[#94A3B8] tracking-widest uppercase font-medium">WAVE</span>
+      <div className="relative w-14 h-1.5 rounded-full bg-white/8 overflow-hidden p-0.5 border border-white/5">
         <div
-          className={cn('absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out', barColor)}
+          className={cn('h-full rounded-full transition-all duration-700 ease-out', barColor)}
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
       </div>
-      <span suppressHydrationWarning className="text-[10px] font-mono font-semibold text-white/60 tabular-nums">
+      <span suppressHydrationWarning className="text-[10px] font-bold text-white/80 tabular-nums">
         {Math.round(value)}%
       </span>
     </div>
@@ -111,52 +113,56 @@ export function FooterBar() {
     return { wave, liquidity };
   }, [utcMs]);
 
-  const waveColor = marketIntel.wave.id === 'asia' ? 'sky' : marketIntel.wave.id === 'europe' ? 'amber' : 'emerald';
+  const waveColor = marketIntel.wave.id === 'asia' ? 'cyan' : marketIntel.wave.id === 'europe' ? 'amber' : 'emerald';
   const isWeekend = formats.dayName === 'Saturday' || formats.dayName === 'Sunday';
   const statusColor = isWeekend ? 'amber' : 'emerald';
-  const qualityLabel = quality === 'high' ? 'HQ' : quality === 'medium' ? 'MQ' : 'LQ';
+  const qualityLabel = quality === 'high' ? 'HQ 60FPS' : quality === 'medium' ? 'MQ' : 'LQ';
 
   return (
     <footer
-      className="fixed bottom-0 left-0 right-0 z-[90] h-7 border-t border-white/6 select-none flex items-center justify-between px-4 safe-area-bottom"
+      className="fixed bottom-0 left-0 right-0 z-[90] h-8 border-t border-white/8 select-none flex items-center justify-between px-4 safe-area-bottom"
       style={{
-        background: 'linear-gradient(180deg, rgba(8,10,16,0.92) 0%, rgba(4,5,10,0.98) 100%)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        background: 'linear-gradient(180deg, rgba(8,12,18,0.95) 0%, rgba(4,6,10,0.98) 100%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
       }}
     >
-      {/* Left: System status */}
-      <div className="flex items-center gap-1.5 min-w-0">
-        <LedDot active={!isWeekend} color={statusColor} />
-        <span className="text-[10px] font-mono font-semibold tracking-wider text-white/60 uppercase">
-          {isWeekend ? 'IDLE' : 'SYNC'}
-        </span>
+      {/* Left: System telemetry */}
+      <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <LedDot active={!isWeekend} color={statusColor} />
+          <span className="text-[10px] font-mono font-bold tracking-wider text-[#00E5A8] uppercase">
+            {isWeekend ? 'IDLE' : 'SYNCED'}
+          </span>
+        </div>
+
         <VDiv />
-        <Metric label="FPS" value={`${fps}`} />
+
+        <Metric label="FPS" value={`${fps}`} icon={<Activity className="w-3 h-3 text-[#00E5A8]" />} />
         <span className={cn(
-          'inline-block w-1 h-1 rounded-full shrink-0',
-          fps >= 55 ? 'bg-emerald-400' : fps >= 30 ? 'bg-amber-400' : 'bg-red-400'
+          'inline-block w-1.5 h-1.5 rounded-full shrink-0',
+          fps >= 55 ? 'bg-[#00E5A8] shadow-[0_0_6px_rgba(0,229,168,0.6)]' : fps >= 30 ? 'bg-amber-400' : 'bg-red-400'
         )} />
+
+        <VDiv />
+        <Metric label="RENDER" value={qualityLabel} icon={<Cpu className="w-3 h-3 text-[#5EE6FF]" />} />
       </div>
 
-      {/* Center: Market wave */}
+      {/* Center: Market intelligence & wave */}
       <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
         <InlineBar value={marketIntel.wave.progress} color={waveColor} />
         <VDiv />
-        <Metric label="LIQ" value={`${Math.round(marketIntel.liquidity)}%`} />
+        <Metric label="LIQUIDITY" value={`${Math.round(marketIntel.liquidity)}%`} />
         <div className="hidden sm:flex items-center gap-3">
           <VDiv />
           <Metric label="ZOOM" value={`L${zoomLevel}`} />
         </div>
-        <div className="hidden sm:flex items-center gap-3">
-          <VDiv />
-          <Metric label="Q" value={qualityLabel} />
-        </div>
       </div>
 
-      {/* Right: UTC time */}
-      <div className="flex items-center gap-1.5 shrink-0">
-        <Metric label="UTC" value={formats.utc || '--:--:--'} />
+      {/* Right: Master UTC Clock */}
+      <div className="flex items-center gap-2 shrink-0">
+        <Radio className="w-3 h-3 text-[#00E5A8] animate-pulse" />
+        <Metric label="UTC MASTER" value={formats.utc || '--:--:--'} />
       </div>
     </footer>
   );

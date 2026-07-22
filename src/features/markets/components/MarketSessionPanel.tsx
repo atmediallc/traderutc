@@ -112,7 +112,7 @@ export function MarketSessionPanel() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -12, scale: 0.98 }}
           transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-          className="absolute top-12 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-[60rem] max-h-[72vh] max-md:max-h-[85vh] rounded-xl border border-white/10 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-y-auto flex flex-col"
+          className="absolute top-[98px] left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-[60rem] max-h-[72vh] max-md:max-h-[85vh] rounded-xl border border-white/10 shadow-[0_24px_80px_-12px_rgba(0,0,0,0.9)] overflow-y-auto flex flex-col"
           style={{
             background: 'linear-gradient(180deg, rgba(10,12,18,0.92) 0%, rgba(6,8,14,0.96) 100%)',
             backdropFilter: 'blur(24px)',
