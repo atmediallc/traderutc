@@ -4,7 +4,16 @@ import { ComputedMarketStatus, TradingWave, MarketOverlap, MarketStatus } from '
 import { IMarketIntelligenceEngine } from './market-intelligence.interface';
 
 export class MarketIntelligenceEngine implements IMarketIntelligenceEngine {
+  private statusCache: Map<string, ComputedMarketStatus> = new Map();
+  private maxCacheSize: number = 1000;
+
   computeMarketStatus(marketId: string, utcMs: number): ComputedMarketStatus {
+    const cacheKey = `${utcMs}_${marketId}`;
+    const cachedStatus = this.statusCache.get(cacheKey);
+    if (cachedStatus) {
+      return cachedStatus;
+    }
+
     const market = marketEngine.getMarketById(marketId);
     if (!market) {
       throw new Error(`Market not found: ${marketId}`);
@@ -73,7 +82,7 @@ export class MarketIntelligenceEngine implements IMarketIntelligenceEngine {
       }
     }
 
-    return {
+    const result = {
       marketId,
       status,
       localTime,
@@ -82,6 +91,16 @@ export class MarketIntelligenceEngine implements IMarketIntelligenceEngine {
       msUntilNextChange,
       nextChangeText,
     };
+
+    if (this.statusCache.size >= this.maxCacheSize) {
+      const firstKey = this.statusCache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.statusCache.delete(firstKey);
+      }
+    }
+    this.statusCache.set(cacheKey, result);
+
+    return result;
   }
 
   getActiveMarkets(utcMs: number): ComputedMarketStatus[] {
