@@ -300,13 +300,18 @@ export const MARKETS: Market[] = [
   }
 ];
 
+
+const MARKET_MAP = new Map<string, Market>(
+  MARKETS.map((m) => [m.id, m])
+);
+
 export class MarketEngine implements IMarketEngine {
   getMarkets(): Market[] {
     return MARKETS;
   }
 
   getMarketById(id: string): Market | undefined {
-    return MARKETS.find((m) => m.id === id);
+    return MARKET_MAP.get(id);
   }
 
   isWeekend(marketId: string, utcMs: number): boolean {
