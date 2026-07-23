@@ -1,7 +1,7 @@
-import { IDataEngine } from './data.interface';
+import { IDataEngine, MarketDataResponse } from './data.interface';
 
 export class DataEngine implements IDataEngine {
-  async fetchMarketData(): Promise<Record<string, string>> {
+  async fetchMarketData(): Promise<MarketDataResponse> {
     // Basic implementation / skeleton for REST APIs, future WebSocket client
     return { status: 'ok', source: 'offline-cache' };
   }

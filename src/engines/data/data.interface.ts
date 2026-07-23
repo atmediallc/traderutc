@@ -1,3 +1,8 @@
+export interface MarketDataResponse {
+  status: string;
+  source: string;
+}
+
 export interface IDataEngine {
-  fetchMarketData(): Promise<Record<string, string>>;
+  fetchMarketData(): Promise<MarketDataResponse>;
 }
